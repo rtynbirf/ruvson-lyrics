@@ -87,3 +87,15 @@ Work Log:
 Stage Summary:
 - Репо: https://github.com/rtynbirf/ruvson-lyrics (private)
 - Рабочий цикл дальше: правки lyrics_work → python3 scripts/build_zip.py → bash scripts/push_github.sh
+
+---
+Task ID: 6
+Agent: main
+Task: Чистовик №1 в артист-формате (Куплет/Припев/Аутро) — выдача в чат + репо
+
+Work Log:
+- download/01_Начать_сначала_ЧИСТОВИК.txt: слова 1:1 с архивом, ноль отсебятины; добавлена только структура (Куплет 1/Припев/Куплет 2/Припев/Аутро) и пунктуация строк
+- Заливка в репо
+
+Stage Summary:
+- Формат «как выкладывают певцы» одобрен юзером => кандидат на раскатку по всем 65
