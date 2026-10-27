@@ -1,0 +1,7 @@
+skills/
+node_modules/
+.env
+tool-results/
+upload/
+__pycache__/
+*.pyc
