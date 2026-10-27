@@ -70,3 +70,20 @@ Work Log:
 Stage Summary:
 - №1 в архиве = финальная редакция (черновик + правки юзера + 3 починки предлогов/окончаний)
 - Вывод для юзера: на №1 сторонний ИИ прав полностью; но №1 — чистая запись, на мусорных треках (23,28,40,42,51,52,55,61) чужие ИИ будут сочинять так же уверенно
+
+---
+Task ID: 5
+Agent: main
+Task: Приватный GitHub-репозиторий как постоянный бэкап и база для дальнейшей доводки текстов
+
+Work Log:
+- Токен юзера проверен (login rtynbirf), создан приватный репо rtynbirf/ruvson-lyrics (API 201, private=True)
+- Локальная история git песочницы обнулена: авто-коммиты содержали .env (DATABASE_URL) и мусор tool-results/ — в пуш не пошло
+- .gitignore: skills/, node_modules/, .env, tool-results/, upload/, __pycache__/, *.pyc
+- Токен: /home/z/.ghtoken (chmod 600), credential helper /home/z/.gitcred.sh вне репо — в файлы и конфиг репо не попадает
+- Свежий init main → 1 коммит: lyrics_work (63), scripts (9, + новый push_github.sh), download (ZIP+README), worklog, README.md
+- Push OK, проверено через API: lyrics_work 63 файла на GitHub, ZIP 126 325 байт на месте
+
+Stage Summary:
+- Репо: https://github.com/rtynbirf/ruvson-lyrics (private)
+- Рабочий цикл дальше: правки lyrics_work → python3 scripts/build_zip.py → bash scripts/push_github.sh
