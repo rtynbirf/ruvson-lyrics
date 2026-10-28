@@ -1,0 +1,34 @@
+name: Pages (ручной запуск)
+
+# Публикует карaoke на GitHub Pages.
+# Запускается вручную (Actions → Pages → Run workflow).
+# Работает, когда репозиторий публичный ИЛИ у аккаунта есть план с Pages
+# для приватных репозиториев. Сначала включи Pages:
+# Settings → Pages → Source: GitHub Actions.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: node --check karaoke/app.js && node --check karaoke/engine.js
+      - name: Загрузить карaoke как артефакт Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: karaoke
+      - id: deployment
+        uses: actions/deploy-pages@v4
