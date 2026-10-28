@@ -1,0 +1,12 @@
+ARCH=x86_64
+KERNEL=Linux 5.10.134-013.15.kangaroo.al8.x86_64
+CPU=Intel(R) Xeon(R) Processor
+CORES=2
+RAM_GB=3
+GPU=НЕИЗВЕСТНО (нет lspci; ПОЧЕМУ: pciutils не установлен — apt-get install pciutils)
+NET_PCI=НЕИЗВЕСТНО
+WIFI=НЕИЗВЕСТНО
+BOARD=НЕИЗВЕСТНО (нет dmidecode — нужны root, честно пропускаю)
+DISK_ROOT_GB=10
+FIRMWARE=bios
+LOCALE=
