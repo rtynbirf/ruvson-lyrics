@@ -130,6 +130,33 @@ Log ("АРТЕФАКТ: {0} ({1} ГБ)" -f $out.FullName, [math]::Round($out.Len
 Log 'Считаю SHA256 артефакта (закон: артефакт отдаётся с хэшем)...'
 $h = (Get-FileHash -Path $OutIso -Algorithm SHA256).Hash
 Log ("SHA256: {0}" -f $h)
+
+# --- 7. МАНИФЕСТ.json (донор практики: H-PE11-PHOENIX, MANIFEST.json/VERIFICATION.txt)
+#     Артефакт отдаётся не файлом, а файлом+манифестом: SHA256, размер, дата-UTC,
+#     карта хоста, параметры сборки. Ключи ASCII (закон машины-слова), значения — факты.
+Log 'Пишу МАНИФЕСТ.json (практика донора H-PE11-PHOENIX)...'
+$firm = 'UNKNOWN'
+try { $firm = (Get-ComputerInfo -Property BiosFirmwareType).BiosFirmwareType } catch { $firm = 'UNKNOWN' }
+$hostOs = ''
+try { $osCim = Get-CimInstance Win32_OperatingSystem; $hostOs = $osCim.Caption + ' ' + $osCim.Version } catch { $hostOs = 'UNKNOWN' }
+$manifest = [ordered]@{
+  artifact            = (Get-Item $OutIso).Name
+  sha256              = $h
+  size_bytes          = $out.Length
+  built_utc           = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
+  toolchain           = 'Mount-DiskImage + robocopy + IMAPI2 (ISO9660+Joliet+UDF102, EFI El Torito)'
+  image_name          = $ImageName
+  local_user          = $LocalUser
+  drivers_dir_present = [bool]($DriversDir -and (Test-Path $DriversDir))
+  host_os             = $hostOs
+  host_firmware       = $firm
+  osforge_version     = 'v0.1.1'
+  manifest_practice   = 'donor: H-PE11-PHOENIX (MANIFEST.json / VERIFICATION.txt, Task 40)'
+}
+$maniPath = "$OutIso.МАНИФЕСТ.json"
+$manifest | ConvertTo-Json | Set-Content -LiteralPath $maniPath -Encoding UTF8
+Log ("МАНИФЕСТ записан: {0}" -f $maniPath)
+
 Log 'Убираю рабочую копию (media), ISO остаётся.'
 Remove-Item $media -Recurse -Force
 Write-Output $OutIso

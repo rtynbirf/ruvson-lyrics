@@ -88,11 +88,25 @@ run xorriso -as mkisofs -r -J -joliet-long -l \
     -isohybrid-gpt-basdat -isohybrid-apm-hfsplus \
     -o "$OUT_ISO" "$TREE" || { say "ОТКАЗ: пересборка"; exit 8; }
 
-# --- 6. Артефакт: хэш + уборка ---
+# --- 6. Артефакт: хэш + манифест + уборка ---
+# МАНИФЕСТ.json — практика донора H-PE11-PHOENIX (MANIFEST.json/VERIFICATION.txt):
+# артефакт отдаётся файлом+манифестом; ключи ASCII (закон машины-слова), значения — факты.
 if [ "$DRY" != "1" ]; then
   [ -s "$OUT_ISO" ] || { say "ОТКАЗ: артефакт пуст — сборка сломана"; exit 8; }
+  SHA="$(sha256sum "$OUT_ISO" | cut -d' ' -f1)"
   say "АРТЕФАКТ: $OUT_ISO ($(du -h "$OUT_ISO" | cut -f1))"
-  say "SHA256: $(sha256sum "$OUT_ISO" | cut -d' ' -f1)"
+  say "SHA256: $SHA"
+  MANI="$OUT_ISO.МАНИФЕСТ.json"
+  printf '{\n' > "$MANI"
+  printf '  "artifact": "%s",\n' "$(basename "$OUT_ISO")" >> "$MANI"
+  printf '  "sha256": "%s",\n' "$SHA" >> "$MANI"
+  printf '  "size_bytes": %s,\n' "$(stat -c%s "$OUT_ISO" 2>/dev/null || echo 0)" >> "$MANI"
+  printf '  "built_utc": "%s",\n' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" >> "$MANI"
+  printf '  "toolchain": "xorriso -as mkisofs (isohybrid, partition_offset 16, BIOS+UEFI El Torito)",\n' >> "$MANI"
+  printf '  "iso_source": "%s",\n' "$ISO_URL" >> "$MANI"
+  printf '  "osforge_version": "v0.1.1",\n' >> "$MANI"
+  printf '  "manifest_practice": "donor: H-PE11-PHOENIX (MANIFEST.json / VERIFICATION.txt, Task 40)"\n}\n' >> "$MANI"
+  say "МАНИФЕСТ записан: $MANI"
   rm -rf "$WORKDIR/tree"
   say "Рабочее дерево убрано, ISO остался."
 else
