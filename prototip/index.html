@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<!--
+  КАРАОКЕ МЕЧТЫ 2.0 · прототип СЦЕНА v0.1
+  Один дом без сборщика: доноры singulyar (__ЛРЦ, __ВСОЛА, __ОПФС)
+  + свои ядра (__ПИТЧ, __СЦЕНА, __СЧЁТ) + этот тонкий шелл.
+  Шрамы дома учтены: CSP цельным куском, в head только комментарии,
+  ноль inline-скриптов, ноль innerHTML.
+  Запуск: python3 -m http.server 8000 → http://localhost:8000/prototip/
+-->
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self' blob:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="КАРАОКЕ МЕЧТЫ 2.0 — прототип СЦЕНА: реальный минус RUVSON, WSOLA-транспонирование с сохранением темпа, счёт Дружелюбный/Судья, Зелёный коридор.">
+  <title>СЦЕНА · КАРАОКЕ МЕЧТЫ 2.0</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:,">
+</head>
+<body>
+  <div class="неон-фон" aria-hidden="true"></div>
+
+  <header class="шапка">
+    <h1>СЦЕНА <span class="шапка-номер">прототип 1</span></h1>
+    <p class="шапка-песня" id="шапка-песня">RUVSON — «Начать сначала» · минус из чистого фонда СИНГУЛЯРА</p>
+    <p class="шапка-статус" id="статус" role="status" aria-live="polite">Просыпаемся…</p>
+  </header>
+
+  <main>
+    <section class="сцена" aria-label="Сцена: строки песни и кривая тона">
+      <canvas id="трубки" class="трубки" aria-label="Кривая тона: зелёная — ты, золотой пунктир — эталон строки"></canvas>
+      <div class="сцена-строки" id="сцена-строки" aria-hidden="true"></div>
+      <p class="sr-only" id="живая-строка" aria-live="polite"></p>
+      <progress id="прогресс" class="прогресс" max="100" value="0" aria-label="Прогресс песни"></progress>
+    </section>
+
+    <section class="пульт" aria-label="Пульт: транспорт, транспонирование, синхро">
+      <div class="пульт-группа">
+        <button id="кнопка-петь" class="кнопка кнопка-главная">▶ Петь</button>
+        <button id="кнопка-стоп" class="кнопка кнопка-стоп" disabled>■ Стоп</button>
+      </div>
+      <div class="пульт-группа">
+        <span class="пульт-подпись">Транспонирование</span>
+        <button id="транс-минус" class="кнопка кнопка-мини" aria-label="Полутона ниже">−</button>
+        <b id="транс-значение" class="пульт-значение">0 пт</b>
+        <button id="транс-плюс" class="кнопка кнопка-мини" aria-label="Полутона выше">+</button>
+        <span class="пульт-хинт">тон двигается, темп стоит — WSOLA</span>
+      </div>
+      <div class="пульт-группа">
+        <span class="пульт-подпись" id="подпись-громкость">Громкость минуса</span>
+        <input id="громкость" type="range" min="0" max="100" value="90" aria-labelledby="подпись-громкость">
+      </div>
+      <div class="пульт-группа">
+        <span class="пульт-подпись" id="подпись-офсет">Сдвиг меток</span>
+        <input id="офсет" type="range" min="-3000" max="3000" step="50" value="0" aria-labelledby="подпись-офсет">
+        <b id="офсет-значение" class="пульт-значение">0 мс</b>
+      </div>
+      <div class="пульт-группа">
+        <button id="кнопка-синхро" class="кнопка кнопка-мини">Синхро: строка сейчас</button>
+        <button id="кнопка-синхро-сброс" class="кнопка кнопка-мини">Синхро сброс</button>
+        <button id="кнопка-экспорт" class="кнопка кнопка-мини">Экспорт .lrc</button>
+      </div>
+      <p class="кор-статус" id="кор-статус" aria-live="polite"></p>
+    </section>
+
+    <section class="счёт" aria-label="Счёт попытки">
+      <h2>Счёт</h2>
+      <div id="счёт-тело" class="счёт-тело"></div>
+    </section>
+
+    <section class="дубли" aria-label="Дубли: записи попыток">
+      <h2>Дубли <span class="заголовок-хинт">хранятся в OPFS, без вытеснения</span></h2>
+      <div id="дубли-тело" class="дубли-тело"></div>
+      <audio id="дубль-аудио" class="sr-only" controls></audio>
+    </section>
+
+    <section class="профиль" aria-label="Профиль вектора: прогресс певца">
+      <h2>Профиль вектора</h2>
+      <div id="профиль-тело" class="профиль-тело"></div>
+    </section>
+  </main>
+
+  <footer class="подвал">
+    <p>прототип СЦЕНА v0.1 · доноры СИНГУЛЯРА: lrc-core/0.1, wsola-core/0.1, opfs-core/0.1 · свои: питч-ядро/0.1 (YIN), сцена-ядро/0.1, счёт-ядро/0.1</p>
+    <p>«Я=ТЫ» · р = ТЫ − E(тренды) · канал «тензор/вектор»: минус — поле, ты — вектор, коридор — сужение поля к оригиналу</p>
+  </footer>
+
+  <script src="js/lrc-core.js"></script>
+  <script src="js/wsola-core.js"></script>
+  <script src="js/opfs-core.js"></script>
+  <script src="js/pitch-core.js"></script>
+  <script src="js/score-core.js"></script>
+  <script src="js/song.js"></script>
+  <script src="js/stage-core.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
