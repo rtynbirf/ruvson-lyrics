@@ -133,6 +133,7 @@ run()  { if [ "$DRY" = "1" ]; then echo "  [СУХОЙ ПРОГОН] $*"; else "
   echo "     $OUT_ISO"
   echo "   КАРТА среды  : $KARTA"
   echo "   ЖУРНАЛ такта : $LOG"
+  echo "   МАНИФЕСТ     : $OUT_ISO.МАНИФЕСТ.json"
   echo "   Запись флешки: cp $OUT_ISO /dev/sdX  (или dd status=progress)"
   echo "  ============================================================"
 }
