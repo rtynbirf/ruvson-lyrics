@@ -16,6 +16,8 @@ jobs:
           node --check karaoke/songs.js
           node --check karaoke/engine.js
           node --check karaoke/app.js
+      - name: LRC-метки синхронны с songs.js
+        run: node scripts/build_lrc.js --check
       - name: Python-пайплайн компилируется
         run: |
           python3 -m py_compile scripts/*.py

@@ -22,7 +22,8 @@
     _duetMap: null,
     _lastFile: null,
     guidePlayingId: null,
-    _mediaPosTs: 0
+    _mediaPosTs: 0,
+    _lrcTried: {}
   };
 
   const SINGER_COLORS = ['#ff2ec4', '#23e6ff', '#2bff88', '#ffc23e', '#ff4d6d', '#b18cff', '#7dffb2', '#ff8ac2'];
@@ -33,7 +34,10 @@
      БИБЛИОТЕКА
      ============================================================ */
   function bestOf(songId, mode) { return Store.get('best:' + songId + ':' + mode, null); }
-  function corridorOf(songId) { return Store.get('corridor:' + songId, { offset: 0 }); }
+  function corridorOf(songId) {
+    const c = Store.get('corridor:' + songId, null);
+    return c ? { offset: c.offset || 0, credit: c.credit || 0 } : { offset: 0, credit: 0 };
+  }
   function setCorridor(songId, c) { Store.set('corridor:' + songId, c); }
 
   function allSongs() { return window.SONGS.concat(state.userSongs); }
@@ -60,6 +64,8 @@
         '<span>Дружелюбный: <b>' + (bf == null ? '—' : Math.round(bf)) + '</b></span>' +
         '<span>Судья: <b>' + (bj == null ? '—' : Math.round(bj)) + '</b></span>' +
         '<span>Коридор: <b>' + (cor.offset === 0 ? 'оригинал' : (cor.offset > 0 ? '+' : '') + cor.offset + ' пт') + '</b></span>' +
+        (Store.get('corridorSteps:' + song.id, 0) > 0
+          ? '<span class="delta-up">Пройдено: ' + Store.get('corridorSteps:' + song.id, 0) + ' пт</span>' : '') +
         '</div>' +
         '<div class="corridor-track"><div class="corridor-fill" style="width:' +
         Math.round((12 - Math.abs(cor.offset)) / 12 * 100) + '%"></div></div>';
@@ -78,6 +84,25 @@
     renderStage();
     renderSync();
     showView('stage');
+    tryRepoLrc(song);
+  }
+
+  // Этап 1: базовые метки живут в репозитории (karaoke/lrc/<id>.lrc).
+  // Если у песни ещё нет своей синхронизации — тихо подхватываем их.
+  async function tryRepoLrc(song) {
+    if (!song || song.custom || state._lrcTried[song.id]) return;
+    state._lrcTried[song.id] = true;
+    if (isSynced(song)) return;
+    try {
+      const resp = await fetch('lrc/' + song.id + '.lrc');
+      if (!resp.ok) return;
+      const times = parseLRC(await resp.text());
+      const n = flattenLines(song).length;
+      if (!times.length || times.length !== n) return;
+      setTimings(song.id, { starts: times.map(x => x.t), audioName: null, base: 'repo' });
+      toast('Метки подгружены из репозитория (базовые). Точнее — тапами в «Синхро».');
+      renderStage(); renderSync(); renderLibrary();
+    } catch (e) { /* file:// или офлайн — молча */ }
   }
 
   function sourceReady() {
@@ -120,7 +145,8 @@
       '</div>' +
       '<div class="corridor-panel">' +
       '<span class="corridor-label">Зелёный коридор <span class="val" id="st-cor-val">' +
-      (cor.offset === 0 ? 'открыт' : 'до оригинала: ' + Math.abs(cor.offset) + ' пт') + '</span></span>' +
+      (cor.offset === 0 ? 'открыт' : 'до оригинала: ' + Math.abs(cor.offset) + ' пт') +
+      (cor.credit ? ' · в копилке полшага' : '') + '</span></span>' +
       '<div class="corridor-track"><div class="corridor-fill" id="st-cor-fill" style="width:' +
       Math.round((12 - Math.abs(cor.offset)) / 12 * 100) + '%"></div></div>' +
       '<button id="st-cor-reset" class="btn small">Сброс</button>' +
@@ -461,18 +487,36 @@
       Store.set('session', hs);
     }
 
-    // Зелёный коридор: среда сужается, когда вектор дорос
+    // Зелёный коридор (этап 4, умный): удачная попытка кладёт полшага
+    // в копилку, две подряд — полный полутон к оригиналу; провал сжигает
+    // копилку. Пройденные полутоны копятся за всё время (corridorSteps).
     const th = state.mode === 'judge' ? 65 : 75;
     let corMsg = '';
     if (full) {
       const cor = corridorOf(song.id);
       if (score >= th && cor.offset !== 0) {
-        cor.offset += cor.offset > 0 ? -1 : 1;
+        cor.credit += 0.5;
+        if (cor.credit >= 0.999) {
+          cor.credit = 0;
+          cor.offset += cor.offset > 0 ? -1 : 1;
+          Store.set('corridorSteps:' + song.id, Store.get('corridorSteps:' + song.id, 0) + 1);
+          corMsg = ' · Зелёный коридор сузился: ' +
+            (cor.offset === 0 ? 'ОРИГИНАЛ!' : Math.abs(cor.offset) + ' пт до оригинала');
+        } else {
+          corMsg = ' · Коридор копит шаг: полшага есть — нужна вторая удачная подряд';
+        }
         setCorridor(song.id, cor);
         applyCorridor();
-        corMsg = ' · Зелёный коридор сузился: ' +
-          (cor.offset === 0 ? 'ОРИГИНАЛ!' : Math.abs(cor.offset) + ' пт до оригинала');
+      } else if (score < th && cor.credit > 0) {
+        cor.credit = 0;
+        setCorridor(song.id, cor);
+        corMsg = ' · Стрик коридора прерван — полшага сгорел';
       }
+      // профиль вектора: история полных попыток (этап 4)
+      const vec = Store.get('vector:' + song.id, []);
+      vec.push({ t: Date.now(), mode: state.mode, score: Math.round(score), cor: cor.offset, cov: Math.round(coverage * 100) });
+      while (vec.length > 80) vec.shift();
+      Store.set('vector:' + song.id, vec);
     }
 
     // подсказка по диапазону (Голосовой комфорт)
@@ -521,6 +565,7 @@
     if (sugEl) sugEl.textContent = sug;
     updateScoreHud(score);
     renderWorst();
+    if (state.view === 'profile') renderProfile();
   }
 
   function updateScoreHud(preview) {
@@ -529,6 +574,149 @@
     if (typeof preview === 'number') $('#sc-big').textContent = Math.round(preview);
     const b = bestOf(song.id, state.mode);
     $('#sc-best').textContent = b == null ? '—' : Math.round(b);
+  }
+
+  /* ============================================================
+     ЭТАП 4 — ПРОГРЕСС КАК ПОЛЕ (профиль вектора)
+     ============================================================ */
+  function avg(a) { return a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0; }
+
+  function renderProfile() {
+    const holder = $('#profile-root');
+    if (!holder) return;
+    const song = state.song;
+    if (!song) {
+      holder.innerHTML = '<div class="stage-empty panel">Профиль ждёт песню.<br>Выбери её в Библиотеке — поле должно знать, кого растит.</div>';
+      return;
+    }
+    const vec = Store.get('vector:' + song.id, []);
+    const steps = Store.get('corridorSteps:' + song.id, 0);
+    const cor = corridorOf(song.id);
+    const scores = vec.map(v => v.score);
+    const best = scores.length ? Math.max.apply(null, scores) : null;
+    const dv = vec.length >= 2 ? avg(scores.slice(-5)) - avg(scores.slice(0, 5)) : null;
+    holder.innerHTML =
+      '<div class="party-grid">' +
+      '<div class="panel">' +
+      '<h3 style="margin-bottom:10px">Поле песни: ' + (song.num ? '№' + song.num + ' — ' : 'СВОЯ — ') + esc(song.title) + '</h3>' +
+      '<div class="btn-row" style="flex-wrap:wrap;gap:14px">' +
+      '<div class="voice-stat"><b>' + vec.length + '</b>полных попыток</div>' +
+      '<div class="voice-stat"><b>' + (best == null ? '—' : best) + '</b>лучший счёт</div>' +
+      '<div class="voice-stat"><b class="' + (dv == null ? '' : dv >= 0 ? 'delta-up' : 'delta-down') + '">' +
+      (dv == null ? '—' : (dv >= 0 ? '+' : '') + dv.toFixed(1)) + '</b>Δv (последние 5 − первые 5)</div>' +
+      '<div class="voice-stat"><b class="delta-up">' + steps + '</b>полутонов отвоевано коридором</div>' +
+      '</div>' +
+      '<p class="hint" style="margin-top:10px">Коридор сейчас: ' +
+      (cor.offset === 0 ? 'в оригинале' : (cor.offset > 0 ? '+' : '') + cor.offset + ' пт до оригинала') +
+      (cor.credit ? ' · в копилке полшага' : '') +
+      '. Две удачные подряд (дружелюбный ≥ 75, судья ≥ 65) — полутон к оригиналу; провал сжигает копилку. Кнопка «Сброс» на Сцене не трогает отвоёванное — пройденное не отбирают.</p>' +
+      '</div>' +
+      '<div class="panel"><h3 style="margin-bottom:10px">Кривая роста</h3>' +
+      '<div class="growth-wrap"><canvas id="growth-canvas"></canvas></div>' +
+      '<p class="hint" style="margin-top:6px">Каждая точка — полная попытка. Пунктир — средняя цена голоса в этой песне.</p>' +
+      '</div>' +
+      '</div>' +
+      '<div class="panel" style="margin-top:16px"><h3 style="margin-bottom:10px">Журнал попыток</h3>' +
+      (vec.length
+        ? '<table class="lb"><tr><th>#</th><th>Когда</th><th>Режим</th><th>Счёт</th><th>Покрытие</th><th>Коридор после</th></tr>' +
+          vec.slice().reverse().slice(0, 12).map((v, i) =>
+            '<tr><td>' + (vec.length - i) + '</td><td class="hint">' + new Date(v.t).toLocaleString() + '</td><td>' +
+            (v.mode === 'judge' ? 'судья' : 'друг') + '</td><td class="score">' + v.score + '</td><td>' + v.cov + '%</td><td>' +
+            (v.cor === 0 ? 'оригинал' : (v.cor > 0 ? '+' : '') + v.cor + ' пт') + '</td></tr>').join('') + '</table>'
+        : '<p class="hint">Полных попыток ещё не было. Сцена ждёт: микрофон, минус, трек без пауз — и первая точка ляжет на кривую.</p>') +
+      '<div class="btn-row" style="margin-top:10px"><button id="profile-wipe" class="btn small">Стереть профиль песни</button></div></div>' +
+      '<div class="panel" style="margin-top:16px"><h3 style="margin-bottom:10px">Сводка по всем песням</h3>' +
+      allSongsTable() + '</div>';
+    $('#profile-wipe').addEventListener('click', function () {
+      if (!this.dataset.armed) {
+        this.dataset.armed = '1'; this.textContent = 'Точно стереть?';
+        setTimeout(() => { delete this.dataset.armed; this.textContent = 'Стереть профиль песни'; }, 2500);
+        return;
+      }
+      delete this.dataset.armed;
+      Store.del('vector:' + song.id);
+      Store.del('corridorSteps:' + song.id);
+      setCorridor(song.id, { offset: 0, credit: 0 });
+      renderProfile(); renderLibrary();
+      toast('Профиль песни стёрт — поле чисто');
+    });
+    $$('tr[data-song]', holder).forEach(tr => tr.addEventListener('click', () => {
+      const s = allSongs().find(x => x.id === tr.dataset.song);
+      if (s) openSong(s);
+    }));
+    drawGrowth(scores);
+  }
+
+  function allSongsTable() {
+    const rows = allSongs().map(song => {
+      const vec = Store.get('vector:' + song.id, []);
+      const steps = Store.get('corridorSteps:' + song.id, 0);
+      const cor = corridorOf(song.id);
+      const bf = bestOf(song.id, 'friendly'), bj = bestOf(song.id, 'judge');
+      const b = [bf, bj].filter(x => x != null);
+      const bestV = b.length ? Math.round(Math.max.apply(null, b)) : null;
+      return '<tr data-song="' + song.id + '" style="cursor:pointer"><td>' + esc(song.title) + '</td><td>' + vec.length + '</td><td class="score">' +
+        (bestV == null ? '—' : bestV) + '</td><td>' + (cor.offset === 0 ? 'оригинал' : (cor.offset > 0 ? '+' : '') + cor.offset + ' пт') +
+        '</td><td class="delta-up">' + steps + '</td></tr>';
+    }).join('');
+    return '<table class="lb"><tr><th>Песня</th><th>Попыток</th><th>Лучший</th><th>Коридор</th><th>Пройдено пт</th></tr>' + rows + '</table>' +
+      '<p class="hint" style="margin-top:8px">Клик по строке — открыть песню.</p>';
+  }
+
+  function drawGrowth(scores) {
+    const cv = document.getElementById('growth-canvas');
+    if (!cv) return;
+    const dpr = window.devicePixelRatio || 1;
+    const W = cv.clientWidth || (cv.parentElement ? cv.parentElement.clientWidth : 400);
+    const H = cv.clientHeight || 150;
+    if (cv.width !== Math.round(W * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+    const g = cv.getContext('2d');
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, W, H);
+    g.font = '12px ' + getComputedStyle(document.body).fontFamily;
+    if (!scores.length) {
+      g.fillStyle = 'rgba(138,138,176,0.9)';
+      g.fillText('Кривая появится после первой полной попытки.', 14, H / 2);
+      return;
+    }
+    if (scores.length === 1) {
+      g.fillStyle = 'rgba(43,255,136,0.9)';
+      g.beginPath(); g.arc(W / 2, H / 2, 4, 0, Math.PI * 2); g.fill();
+      g.fillText(scores[0] + ' — одна точка. Вектору нужна вторая, чтобы показать направление.', W / 2 + 12, H / 2 + 4);
+      return;
+    }
+    const pad = { l: 30, r: 14, t: 12, b: 18 };
+    const lo = Math.max(0, Math.min.apply(null, scores) - 6);
+    const hi = Math.min(100, Math.max.apply(null, scores) + 6);
+    const X = i => pad.l + (W - pad.l - pad.r) * (i / (scores.length - 1));
+    const Y = v => H - pad.b - (H - pad.t - pad.b) * ((v - lo) / ((hi - lo) || 1));
+    g.strokeStyle = 'rgba(120,120,200,0.14)'; g.lineWidth = 1;
+    g.fillStyle = 'rgba(138,138,176,0.85)';
+    [lo, (lo + hi) / 2, hi].forEach(v => {
+      g.beginPath(); g.moveTo(pad.l, Y(v)); g.lineTo(W - pad.r, Y(v)); g.stroke();
+      g.fillText(String(Math.round(v)), 6, Y(v) + 4);
+    });
+    const m = avg(scores);
+    g.setLineDash([5, 5]); g.strokeStyle = 'rgba(255,194,62,0.55)';
+    g.beginPath(); g.moveTo(pad.l, Y(m)); g.lineTo(W - pad.r, Y(m)); g.stroke();
+    g.setLineDash([]);
+    g.beginPath();
+    scores.forEach((v, i) => { const x = X(i), y = Y(v); if (i) g.lineTo(x, y); else g.moveTo(x, y); });
+    g.strokeStyle = 'rgba(43,255,136,0.95)'; g.lineWidth = 2.2;
+    g.shadowColor = 'rgba(43,255,136,0.7)'; g.shadowBlur = 10;
+    g.stroke();
+    g.shadowBlur = 0;
+    g.lineTo(X(scores.length - 1), H - pad.b); g.lineTo(X(0), H - pad.b); g.closePath();
+    g.fillStyle = 'rgba(43,255,136,0.08)'; g.fill();
+    scores.forEach((v, i) => {
+      const last = i === scores.length - 1;
+      g.fillStyle = last ? 'rgba(35,230,255,1)' : 'rgba(43,255,136,0.8)';
+      g.beginPath(); g.arc(X(i), Y(v), last ? 4.5 : 2.6, 0, Math.PI * 2); g.fill();
+      if (last) {
+        g.fillStyle = 'rgba(35,230,255,0.95)';
+        g.fillText(String(v), Math.min(X(i) + 8, W - 26), Y(v) - 8);
+      }
+    });
   }
 
   /* ============================================================
@@ -1155,8 +1343,10 @@
       hint.textContent = '';
       return;
     }
+    const tmNow = getTimings(song.id);
     hint.textContent = 'Песня: №' + song.num + ' — ' + song.title + '. Источник звука: ' +
-      (Transport.mode === 'synth' ? 'синт-минус' : (document.getElementById('audio').src ? 'файл' : 'не выбран (иди на Сцену)'));
+      (Transport.mode === 'synth' ? 'синт-минус' : (document.getElementById('audio').src ? 'файл' : 'не выбран (иди на Сцену)')) +
+      (tmNow && tmNow.base === 'repo' ? '. Метки: базовые из репозитория — подправь тапами' : '');
     const flat = linesWithTimes(song);
     const tm = getTimings(song.id);
     const starts = (tm && tm.starts) || [];
@@ -1389,6 +1579,7 @@
     if (v === 'sync') renderSync();
     if (v === 'party') { renderParty(); renderHighlights(); }
     if (v === 'voice') renderVoice();
+    if (v === 'profile') renderProfile();
   }
 
   function initHeader() {

@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#07070f">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="style.css?v=3.0">
+<link rel="stylesheet" href="style.css?v=3.1">
 </head>
 <body>
 <div id="neon-bg"></div>
@@ -21,6 +21,7 @@
     <button data-view="sync">Синхро</button>
     <button data-view="party">Пати</button>
     <button data-view="voice">Голос</button>
+    <button data-view="profile">Профиль</button>
   </nav>
   <div class="header-right">
     <button id="btn-pad" class="chip-btn" title="Фоновый неон-пад между песнями">Пад: выкл</button>
@@ -143,6 +144,13 @@
       </div>
     </div>
   </section>
+
+  <!-- ПРОФИЛЬ -->
+  <section id="view-profile" class="view" hidden>
+    <h2 class="view-title">Профиль вектора</h2>
+    <p class="view-sub">История попыток, кривая роста и путь «Зелёного коридора». Среда не хвалит — она показывает, сколько полутонов голос уже отвоевал у тональности. Пройденное не отбирают.</p>
+    <div id="profile-root"></div>
+  </section>
 </main>
 
 <footer>Я = ТЫ · вектор в тензорном поле · «Зелёный коридор» · RUVSON × КАРАОКЕ МЕЧТЫ 2.0</footer>
@@ -151,9 +159,9 @@
 <audio id="audio" preload="auto"></audio>
 <audio id="guide-audio" preload="none"></audio>
 
-<script src="songs.js?v=3.0"></script>
-<script src="engine.js?v=3.0"></script>
-<script src="app.js?v=3.0"></script>
+<script src="songs.js?v=3.1"></script>
+<script src="engine.js?v=3.1"></script>
+<script src="app.js?v=3.1"></script>
 <script>
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   navigator.serviceWorker.register('sw.js').catch(function () {});

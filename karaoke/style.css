@@ -396,3 +396,14 @@ body.bigmode main { max-width: 1400px; }
 .take-row .acts .btn { padding: 4px 10px; font-size: 11.5px; }
 .take-row a.btn { text-decoration: none; display: inline-block; }
 
+/* ---------- профиль вектора (этап 4: прогресс как поле) ---------- */
+.growth-wrap { position: relative; }
+#growth-canvas {
+  width: 100%; height: 150px; display: block;
+  background: rgba(0, 0, 0, 0.3); border: 1px solid var(--line); border-radius: 10px;
+}
+.delta-up { color: var(--green); text-shadow: 0 0 10px rgba(43, 255, 136, 0.4); }
+.delta-down { color: var(--magenta); text-shadow: 0 0 10px rgba(255, 46, 196, 0.4); }
+.lb tr[data-song] { cursor: pointer; }
+.lb tr[data-song]:hover { background: rgba(255, 46, 196, 0.08); }
+

@@ -1,5 +1,5 @@
 /* КАРАОКЕ МЕЧТЫ 2.0 — service worker: офлайн-кэш ядра приложения */
-const CACHE = 'km2-v3.0';
+const CACHE = 'km2-v3.1';
 const CORE = [
   './',
   'index.html',
@@ -8,7 +8,12 @@ const CORE = [
   'engine.js',
   'app.js',
   'manifest.webmanifest',
-  'icon.svg'
+  'icon.svg',
+  'lrc/n01.lrc',
+  'lrc/n02.lrc',
+  'lrc/n03.lrc',
+  'lrc/n04.lrc',
+  'lrc/n05.lrc'
 ];
 
 self.addEventListener('install', e => {
