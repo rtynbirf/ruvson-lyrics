@@ -1,0 +1,259 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   КАРАОКЕ МЕЧТЫ 2.0 · прототип СЦЕНА · css/style.css
+   дизайн-канон СИНГУЛЯРА: void #0A0A0C + стекло + канонное золото #D4AF37;
+   зелёный коридора #34D399; prefers-reduced-motion уважается;
+   фокус видим всегда (владелец слепой — доступность не опция).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --void: #0A0A0C;
+  --стекло: rgba(255, 255, 255, 0.045);
+  --стекло-край: rgba(255, 255, 255, 0.10);
+  --золото: #D4AF37;
+  --золото-тёплое: #A67C00;
+  --зелёный: #34D399;
+  --красный: #F87171;
+  --текст: #EDEAE0;
+  --текст-тускл: #8D8A80;
+  --радиус: 14px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--void);
+  color: var(--текст);
+  font: 16px/1.55 "PT Sans", "Segoe UI", system-ui, sans-serif;
+}
+
+.неон-фон {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(600px 300px at 15% -5%, rgba(52, 211, 153, 0.07), transparent 65%),
+    radial-gradient(700px 350px at 90% 110%, rgba(212, 175, 55, 0.06), transparent 65%);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.шапка { padding: 22px 18px 6px; text-align: center; position: relative; }
+
+.шапка h1 {
+  margin: 0;
+  font-size: 30px;
+  letter-spacing: 0.14em;
+  color: var(--золото);
+  text-shadow: 0 0 18px rgba(212, 175, 55, 0.35);
+}
+
+.шапка-номер {
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: var(--текст-тускл);
+  vertical-align: middle;
+  border: 1px solid var(--стекло-край);
+  border-radius: 999px;
+  padding: 2px 10px;
+  margin-left: 10px;
+}
+
+.шапка-песня { margin: 6px 0 2px; color: var(--текст); }
+.шапка-статус { margin: 0; color: var(--зелёный); font-size: 14px; min-height: 20px; }
+
+main {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 10px 14px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+section {
+  background: var(--стекло);
+  border: 1px solid var(--стекло-край);
+  border-radius: var(--радиус);
+  padding: 14px 16px;
+  backdrop-filter: blur(6px);
+}
+
+h2 {
+  margin: 0 0 10px;
+  font-size: 15px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--золото);
+}
+
+.заголовок-хинт {
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--текст-тускл);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+/* ── сцена ──────────────────────────────────────────────────────────────── */
+.сцена { padding: 12px; }
+
+.трубки {
+  display: block;
+  width: 100%;
+  height: 180px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--стекло-край);
+}
+
+.сцена-строки { min-height: 168px; padding: 14px 6px 8px; }
+
+.строка { text-align: center; transition: opacity 0.25s ease; }
+.строка-прошлая { opacity: 0.38; }
+.строка-след { opacity: 0.62; }
+.строка-пусто { opacity: 0.08; }
+
+.строка-лейбл {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--текст-тускл);
+  margin-bottom: 2px;
+}
+
+.строка-текст { font-size: 17px; line-height: 1.5; }
+
+.строка-текущая .строка-текст {
+  font-size: 25px;
+  font-weight: 700;
+  color: var(--золото);
+  text-shadow: 0 0 22px rgba(212, 175, 55, 0.45);
+}
+
+.строка-текущая .строка-лейбл { color: var(--зелёный); }
+
+.прогресс {
+  width: 100%;
+  height: 6px;
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.прогресс::-webkit-progress-bar { background: rgba(255, 255, 255, 0.08); }
+.прогресс::-webkit-progress-value { background: linear-gradient(90deg, var(--зелёный), var(--золото)); }
+.прогресс::-moz-progress-bar { background: linear-gradient(90deg, var(--зелёный), var(--золото)); }
+
+/* ── пульт ──────────────────────────────────────────────────────────────── */
+.пульт { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+
+.пульт-группа { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+.пульт-подпись { color: var(--текст-тускл); font-size: 13px; }
+.пульт-значение { min-width: 56px; text-align: center; color: var(--текст); }
+.пульт-хинт { color: var(--текст-тускл); font-size: 12px; }
+
+.кнопка {
+  font: inherit;
+  color: var(--текст);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--стекло-край);
+  border-radius: 10px;
+  padding: 9px 16px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.кнопка:hover:not(:disabled) { border-color: var(--золото); box-shadow: 0 0 12px rgba(212, 175, 55, 0.25); }
+
+.кнопка-главная {
+  background: rgba(52, 211, 153, 0.12);
+  border-color: rgba(52, 211, 153, 0.45);
+  color: var(--зелёный);
+  font-weight: 700;
+}
+.кнопка-главная:hover:not(:disabled) { border-color: var(--зелёный); box-shadow: 0 0 16px rgba(52, 211, 153, 0.35); }
+
+.кнопка-стоп { border-color: rgba(248, 113, 113, 0.5); color: var(--красный); }
+
+.кнопка-мини { padding: 6px 12px; font-size: 14px; }
+
+.кнопка:disabled { opacity: 0.4; cursor: default; }
+
+input[type="range"] { accent-color: var(--золото); min-width: 140px; }
+
+.кор-статус {
+  width: 100%;
+  margin: 2px 0 0;
+  color: var(--зелёный);
+  font-size: 14px;
+}
+
+/* ── счёт / дубли / профиль ─────────────────────────────────────────────── */
+.счёт-итоги { display: flex; gap: 22px; flex-wrap: wrap; margin-bottom: 8px; }
+.счёт-метка { color: var(--текст-тускл); }
+.счёт-метка.друг b { color: var(--зелёный); font-size: 22px; }
+.счёт-метка.суд b { color: var(--золото); font-size: 22px; }
+
+.счёт-вердикт { color: var(--текст); margin-bottom: 8px; }
+
+.тренировать-голова { color: var(--текст-тускл); font-size: 13px; margin-top: 6px; }
+.тренировать-строка { color: var(--текст); font-size: 14px; }
+
+.дубли-тело, .профиль-тело { display: flex; flex-direction: column; gap: 6px; }
+
+.дубль-строка { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.дубль-строка button {
+  font: inherit; font-size: 13px;
+  background: transparent;
+  color: var(--текст-тускл);
+  border: 1px solid var(--стекло-край);
+  border-radius: 8px;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+.дубль-строка button:hover { color: var(--текст); border-color: var(--золото); }
+
+.профиль-сводка { color: var(--текст); }
+.спарклайн { width: 100%; height: 80px; border: 1px solid var(--стекло-край); border-radius: 8px; background: rgba(0,0,0,0.25); }
+.журнал-голова { color: var(--текст-тускл); font-size: 13px; margin-top: 6px; }
+.журнал-строка { font-size: 13.5px; color: var(--текст); }
+
+/* ── фокус: виден всегда ────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--золото);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.подвал {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 14px 30px;
+  color: var(--текст-тускл);
+  font-size: 12px;
+  text-align: center;
+}
+.подвал p { margin: 3px 0; }
+
+/* ── уважение к вестибюлярным настройкам ────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+@media (max-width: 560px) {
+  .строка-текущая .строка-текст { font-size: 20px; }
+  .шапка h1 { font-size: 22px; }
+  input[type="range"] { min-width: 100px; }
+}
