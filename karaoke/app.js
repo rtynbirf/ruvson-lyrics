@@ -8,14 +8,21 @@
 (function () {
   const { $, $$, clamp, fmtTime, Store, toast, midiToName, freqToMidi,
     octFold, median, flattenLines, linesWithTimes, getTimings, setTimings,
-    isSynced, toLRC, parseLRC, Transport, Pad, Mic } = window.KM;
+    isSynced, toLRC, parseLRC, Transport, Pad, Mic, Recorder, TakesDB, detectKey } = window.KM;
 
   /* ---------- состояние ---------- */
   const state = {
     view: 'library',
     song: null,          // выбранная песня
     mode: Store.get('mode', 'friendly'),
-    party: Store.get('party', { singers: [], active: false, results: [] })
+    party: Store.get('party', { singers: [], active: false, results: [] }),
+    userSongs: Store.get('userSongs', []),
+    recOn: Store.get('recOn', false),
+    duet: Store.get('duet', false),
+    _duetMap: null,
+    _lastFile: null,
+    guidePlayingId: null,
+    _mediaPosTs: 0
   };
 
   const SINGER_COLORS = ['#ff2ec4', '#23e6ff', '#2bff88', '#ffc23e', '#ff4d6d', '#b18cff', '#7dffb2', '#ff8ac2'];
@@ -29,10 +36,12 @@
   function corridorOf(songId) { return Store.get('corridor:' + songId, { offset: 0 }); }
   function setCorridor(songId, c) { Store.set('corridor:' + songId, c); }
 
+  function allSongs() { return window.SONGS.concat(state.userSongs); }
+
   function renderLibrary() {
     const grid = $('#song-grid');
     grid.innerHTML = '';
-    window.SONGS.forEach(song => {
+    allSongs().forEach(song => {
       const synced = isSynced(song);
       const bf = bestOf(song.id, 'friendly'), bj = bestOf(song.id, 'judge');
       const cor = corridorOf(song.id);
@@ -40,9 +49,11 @@
       const card = document.createElement('div');
       card.className = 'song-card';
       card.innerHTML =
-        '<div class="num">НОМЕР ' + String(song.num).padStart(2, '0') + '</div>' +
+        '<div class="num">' + (song.custom
+          ? 'СВОЯ ПЕСНЯ <button class="del-song" title="Удалить песню">×</button>'
+          : 'НОМЕР ' + String(song.num).padStart(2, '0')) + '</div>' +
         '<h3>' + song.title + '</h3>' +
-        '<div class="meta"><span class="badge clean">ЧИСТОВИК</span>' +
+        '<div class="meta"><span class="badge ' + (song.custom ? 'own' : 'clean') + '">' + (song.custom ? 'СВОЯ' : 'ЧИСТОВИК') + '</span>' +
         (synced ? '<span class="badge synced">СИНХРОН</span>' : '') +
         '<span>' + song.dur + ' · ' + nLines + ' строк</span></div>' +
         '<div class="card-stats">' +
@@ -53,6 +64,8 @@
         '<div class="corridor-track"><div class="corridor-fill" style="width:' +
         Math.round((12 - Math.abs(cor.offset)) / 12 * 100) + '%"></div></div>';
       card.addEventListener('click', () => openSong(song));
+      const del = $('.del-song', card);
+      if (del) del.addEventListener('click', e => { e.stopPropagation(); deleteUserSong(song.id); });
       grid.appendChild(card);
     });
   }
@@ -84,7 +97,7 @@
     const root = $('#stage-root');
     root.innerHTML =
       '<div class="stage-head">' +
-      '<h2>№' + song.num + ' — ' + song.title + '</h2>' +
+      '<h2>' + (song.custom ? 'СВОЯ — ' : '№' + song.num + ' — ') + song.title + '</h2>' +
       '<a class="yt" href="' + song.youtube + '" target="_blank" rel="noopener">оригинал на YouTube · ' + song.dur + '</a>' +
       '</div>' +
 
@@ -133,7 +146,18 @@
       '<button id="st-mic" class="chip-btn">Микрофон: выкл</button>' +
       '</div>' +
       '<canvas id="pitch-canvas"></canvas>' +
-      '<p class="hint" style="margin-top:10px">Счёт работает при включённом микрофоне: среда измеряет присутствие, устойчивость и близость к эталон-контуру. Возьми хорошую попытку — она станет эталоном для следующих. Звук с микрофона никуда не передаётся.</p>';
+      '<canvas id="tube-canvas"></canvas>' +
+      '<div class="btn-row" style="margin-top:10px">' +
+      '<button id="st-rec" class="chip-btn' + (state.recOn ? ' on' : '') + '">Запись дубля: ' + (state.recOn ? 'вкл' : 'выкл') + '</button>' +
+      (state.party.active && state.party.singers.length >= 2
+        ? '<button id="st-duet" class="chip-btn' + (state.duet ? ' on' : '') + '">Дуэт: ' + (state.duet ? 'вкл' : 'выкл') + '</button>' : '') +
+      '<button id="st-key" class="chip-btn">Тональность файла: ' + keyLabel(song) + '</button>' +
+      '<button id="st-takes" class="chip-btn">Дубли</button>' +
+      '</div>' +
+      '<div id="worst-panel" class="panel" style="margin-top:12px" hidden></div>' +
+      '<div id="takes-panel" class="panel" style="margin-top:12px" hidden></div>' +
+      '<p class="hint" style="margin-top:10px">Счёт работает при включённом микрофоне: среда измеряет присутствие, устойчивость и близость к эталон-контуру. Нотные трубки появятся после первой полной попытки — трасса эталона и твой голос на ней. Дубли пишутся (минус + голос) только по включению записи и хранятся лишь в этом браузере. Октава вверх/вниз и другая тональность счёту не мешают — главное не дрейфовать.</p>' +
+      '<p class="hint" id="st-guide-hint"></p>';
 
     // строки
     const box = $('#st-lyrics');
@@ -161,9 +185,11 @@
     $('#st-file-in').addEventListener('change', async e => {
       const f = e.target.files[0];
       if (!f) return;
+      state._lastFile = f;
       await Transport.useFile(f);
       toast('Минус загружен: ' + f.name);
       updateStageMeta();
+      autoKey(f);
     });
     $('#st-synth').addEventListener('click', async () => {
       await Transport.useSynth();
@@ -193,6 +219,32 @@
     $('#md-friend').addEventListener('click', () => setMode('friendly'));
     $('#md-judge').addEventListener('click', () => setMode('judge'));
     $('#st-mic').addEventListener('click', toggleMic);
+    $('#st-rec').addEventListener('click', () => {
+      state.recOn = !state.recOn; Store.set('recOn', state.recOn);
+      $('#st-rec').textContent = 'Запись дубля: ' + (state.recOn ? 'вкл' : 'выкл');
+      $('#st-rec').classList.toggle('on', state.recOn);
+    });
+    const duetBtn = $('#st-duet');
+    if (duetBtn) duetBtn.addEventListener('click', () => {
+      state.duet = !state.duet; Store.set('duet', state.duet);
+      state._duetMap = duetAssign(song);
+      duetBtn.textContent = 'Дуэт: ' + (state.duet ? 'вкл' : 'выкл');
+      duetBtn.classList.toggle('on', state.duet);
+    });
+    const keyBtn = $('#st-key');
+    if (keyBtn) keyBtn.addEventListener('click', () => {
+      const k = Store.get('key:' + song.id, null);
+      if (k && k.fileName === (Transport.fileName || '')) suggestKeyStart();
+      else if (state._lastFile) autoKey(state._lastFile);
+      else toast('Сначала загрузи минус из файла', true);
+    });
+    $('#st-takes').addEventListener('click', () => {
+      const p = $('#takes-panel');
+      p.hidden = !p.hidden;
+      if (!p.hidden) refreshTakes();
+    });
+    renderWorst();
+    refreshTakes();
 
     // drag&drop файла на лирику
     box.addEventListener('dragover', e => { e.preventDefault(); });
@@ -200,15 +252,19 @@
       e.preventDefault();
       const f = e.dataTransfer.files && e.dataTransfer.files[0];
       if (f && /audio|video/.test(f.type) || (f && /\.(mp3|wav|ogg|m4a|flac|opus)$/i.test(f.name))) {
+        state._lastFile = f;
         await Transport.useFile(f);
         toast('Минус загружен: ' + f.name);
         updateStageMeta();
+        autoKey(f);
       }
     });
 
     applyCorridor();
     updateStageMeta();
     updateScoreHud();
+    state._duetMap = duetAssign(song);
+    updateMediaMeta();
   }
 
   function setMode(m) {
@@ -272,14 +328,16 @@
       if (idx !== this.curIdx) {
         this.closeCur();
         this.curIdx = idx;
-        this.cur = { frames: 0, voiced: 0, semis: [] };
+        this.cur = { frames: 0, voiced: 0, semis: [], pts: [] };
       }
       this.cur.frames++;
       this.framesTotal++;
       if (pitch && pitch.freq > 0 && pitch.conf >= (state.mode === 'judge' ? 0.5 : 0.35)) {
         this.cur.voiced++;
         this.voicedTotal++;
-        this.cur.semis.push(freqToMidi(pitch.freq));
+        const midi = freqToMidi(pitch.freq);
+        this.cur.semis.push(midi);
+        this.cur.pts.push([t, midi]);
       }
     },
     closeCur() {
@@ -328,11 +386,12 @@
     return sc;
   }
 
-  function finalizeTake() {
+  async function finalizeTake() {
     if (!Take.active) return;
     Take.active = false;
     const song = state.song;
     if (!song) return;
+    const recBlob = state.recOn ? await Recorder.stop() : null;
     const flat = linesWithTimes(song);
     const acc = Take.data();
     const off = Transport.semitones;
@@ -363,7 +422,7 @@
     const full = coverage >= 0.6;
     if (full && (prevBest == null || score > prevBest)) Store.set(key, score);
 
-    // эталон-контур: лучшая по покрытию попытка
+    // эталон-контур с траекторией: лучшая по покрытию попытка
     if (full && (!ref || coverage >= (ref.coverage || 0))) {
       const lines = [];
       for (let i = 0; i < flat.length; i++) {
@@ -372,10 +431,34 @@
           const m = median(a.semis);
           const h1 = median(a.semis.slice(0, Math.ceil(a.semis.length / 2)));
           const h2 = median(a.semis.slice(Math.ceil(a.semis.length / 2)));
-          lines[i] = { m, dir: h2 - h1 > 0.7 ? 'up' : h2 - h1 < -0.7 ? 'down' : 'hold' };
+          lines[i] = { m, dir: h2 - h1 > 0.7 ? 'up' : h2 - h1 < -0.7 ? 'down' : 'hold', path: buildPath(a.pts, flat[i], m) };
         } else lines[i] = null;
       }
       Store.set('ref:' + song.id, { offset: off, coverage, lines });
+    }
+
+    // что тренировать: слабые строки полной попытки
+    if (full) {
+      const worst = included.filter(x => x.sc < 60).sort((x, y) => x.sc - y.sc).slice(0, 3)
+        .map(x => ({ i: x.i, sc: Math.round(x.sc), text: flat[x.i].text, start: flat[x.i].start }));
+      Store.set('worst:' + song.id, worst);
+    }
+
+    // хайлайты вечера: лучшая строка попытки
+    const bestLine = included.slice().sort((x, y) => y.sc - x.sc)[0];
+    if (full && bestLine && bestLine.sc >= 70) {
+      const hs = Store.get('session', { date: new Date().toDateString(), items: [] });
+      if (hs.date !== new Date().toDateString()) { hs.date = new Date().toDateString(); hs.items = []; }
+      hs.items.push({
+        song: '№' + song.num + ' ' + song.title,
+        text: flat[bestLine.i].text,
+        score: Math.round(bestLine.sc),
+        singer: (state.party.active && state.party.singers.length) ? currentSinger() : null,
+        ts: Date.now()
+      });
+      hs.items.sort((a, b) => b.score - a.score);
+      hs.items = hs.items.slice(0, 12);
+      Store.set('session', hs);
     }
 
     // Зелёный коридор: среда сужается, когда вектор дорос
@@ -408,10 +491,27 @@
       const cur = currentSinger();
       state.party.results.push({
         singer: cur, song: '№' + song.num + ' ' + song.title,
-        score: Math.round(score), mode: state.mode, ts: Date.now()
+        score: Math.round(score), mode: state.mode, ts: Date.now(),
+        parts: duetParts(included)
       });
       saveParty();
       if (state.view === 'party') renderParty();
+    }
+
+    // сохранение дубля (минус + голос)
+    if (recBlob) {
+      try {
+        await TakesDB.put({
+          id: song.id + ':' + Date.now(),
+          songId: song.id,
+          songTitle: '№' + song.num + ' — ' + song.title,
+          ts: Date.now(),
+          score: Math.round(score), mode: state.mode,
+          mime: recBlob.type, blob: recBlob
+        });
+        const tp = $('#takes-panel');
+        if (tp && !tp.hidden) refreshTakes();
+      } catch (e) { toast('Дубль не сохранился: ' + e, true); }
     }
 
     toast('Попытка: ' + Math.round(score) + ' / 100' +
@@ -420,6 +520,7 @@
     const sugEl = $('#sc-suggest');
     if (sugEl) sugEl.textContent = sug;
     updateScoreHud(score);
+    renderWorst();
   }
 
   function updateScoreHud(preview) {
@@ -516,6 +617,11 @@
           Transport.pause(); finalizeTake();
         }
       }
+
+      drawTubes(t, flat, idx);
+      applyDuetColors(lineEls);
+      syncGuide(t, playing);
+      updateMediaPosition();
     }
 
     if (state.view === 'voice') {
@@ -563,6 +669,476 @@
     g.shadowColor = 'rgba(43,255,136,0.8)'; g.shadowBlur = 8;
     g.stroke();
     g.shadowBlur = 0;
+  }
+
+  /* ============================================================
+     v3.0 — ЭМЕРДЖЕНТНОЕ: трубки, дуэты, дубли+гид, свои песни,
+     хайлайты, тональность, разогрев, MediaSession
+     ============================================================ */
+  const TUBE_BUCKETS = 24;
+
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  // Траектория строки: 24 ведра по времени, медианы, относительные (полутона от медианы строки).
+  function buildPath(pts, line, m) {
+    if (!pts || pts.length < 8) return null;
+    const d = (line.end != null && line.start != null) ? (line.end - line.start) : 0;
+    if (!(d > 0.4)) return null;
+    const B = TUBE_BUCKETS;
+    const bk = Array.from({ length: B }, () => []);
+    pts.forEach(pair => {
+      const b = Math.floor((pair[0] - line.start) / d * B);
+      if (b >= 0 && b < B) bk[b].push(octFold(pair[1] - m));
+    });
+    const filled = bk.filter(a => a.length).length;
+    if (filled < B * 0.6) return null;
+    const path = bk.map(a => a.length ? +median(a).toFixed(1) : null);
+    for (let b = 0; b < B; b++) {
+      if (path[b] == null) {
+        let l = b - 1, r = b + 1;
+        while (l >= 0 && path[l] == null) l--;
+        while (r < B && path[r] == null) r++;
+        if (l >= 0 && r < B) path[b] = +(((path[l] + path[r]) / 2).toFixed(1));
+        else if (l >= 0) path[b] = path[l];
+        else if (r < B) path[b] = path[r];
+      }
+    }
+    return path;
+  }
+
+  function drawTubes(t, flat, idx) {
+    const cv = document.getElementById('tube-canvas');
+    if (!cv) return;
+    const dpr = window.devicePixelRatio || 1;
+    const W = cv.clientWidth, H = cv.clientHeight;
+    if (!W) return;
+    if (cv.width !== Math.round(W * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+    const g = cv.getContext('2d');
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const cur = idx >= 0 ? flat[idx] : null;
+    const refAll = state.song ? Store.get('ref:' + state.song.id, null) : null;
+    const refLine = (cur && refAll && refAll.lines[idx]) ? refAll.lines[idx] : null;
+    if (!cur || cur.start == null || cur.end == null) return;
+    const t0 = cur.start - 0.2, t1 = Math.max(cur.end, t0 + 1);
+    const x = tt => (tt - t0) / (t1 - t0) * W;
+    const yOf = rel => H / 2 - clamp(rel, -8, 8) / 8 * (H / 2 - 8);
+    const offDelta = refAll ? (Transport.semitones - refAll.offset) : 0;
+
+    // сетка полутонос
+    g.strokeStyle = 'rgba(120,120,200,0.12)';
+    g.lineWidth = 1;
+    [-4, 4].forEach(rel => {
+      g.beginPath(); g.moveTo(0, yOf(rel)); g.lineTo(W, yOf(rel)); g.stroke();
+    });
+
+    if (refLine && refLine.path) {
+      // трубка эталона
+      const path = refLine.path;
+      g.lineJoin = 'round'; g.lineCap = 'round';
+      [[12, 'rgba(43,255,136,0.22)'], [5, 'rgba(43,255,136,0.85)']].forEach(pair => {
+        g.lineWidth = pair[0]; g.strokeStyle = pair[1];
+        g.beginPath();
+        for (let b = 0; b < TUBE_BUCKETS; b++) {
+          const px = x(cur.start + (b + 0.5) / TUBE_BUCKETS * (cur.end - cur.start));
+          const py = yOf(path[b]);
+          if (b === 0) g.moveTo(px, py); else g.lineTo(px, py);
+        }
+        g.stroke();
+      });
+    } else {
+      g.setLineDash([4, 6]);
+      g.strokeStyle = 'rgba(255,255,255,0.18)';
+      g.beginPath(); g.moveTo(0, H / 2); g.lineTo(W, H / 2); g.stroke();
+      g.setLineDash([]);
+    }
+
+    // живой голос в окне строки
+    const pts = pitchTrail.filter(p => p.t >= t0 && p.t <= t1 + 0.2);
+    if (!pts.length) return;
+    let center = 0;
+    if (refLine && typeof refLine.m === 'number') center = refLine.m + offDelta;
+    else center = median(pts.slice(-24).map(p => p.midi));
+    g.fillStyle = 'rgba(255,255,255,0.9)';
+    g.shadowColor = 'rgba(35,230,255,0.9)'; g.shadowBlur = 6;
+    pts.forEach(p => {
+      const rel = octFold(p.midi - center);
+      g.beginPath();
+      g.arc(x(p.t), yOf(rel), p === pts[pts.length - 1] ? 4.5 : 2.5, 0, Math.PI * 2);
+      g.fill();
+    });
+    g.shadowBlur = 0;
+  }
+
+  /* ---------- дуэты: распределение строк ---------- */
+  function duetAssign(song) {
+    if (!state.duet || !state.party.active || state.party.singers.length < 2) return null;
+    const n = state.party.singers.length;
+    const map = [];
+    song.sections.forEach((sec, si) => {
+      const a = sec.type === 'chorus' ? -1 : (si % n); // припевы — хором
+      sec.lines.forEach(() => map.push(a));
+    });
+    return map;
+  }
+
+  function applyDuetColors(lineEls) {
+    const map = state._duetMap;
+    if (!map || map.length !== lineEls.length) return;
+    lineEls.forEach((el, i) => {
+      let chip = $('.duet-chip', el);
+      const a = map[i];
+      if (a == null || a < 0) {
+        if (chip) chip.remove();
+        return;
+      }
+      const s = state.party.singers[a];
+      if (!s) return;
+      if (!el.classList.contains('current')) el.style.boxShadow = 'inset 3px 0 0 ' + s.color;
+      if (!chip) {
+        chip = document.createElement('span');
+        chip.className = 'duet-chip';
+        el.appendChild(chip);
+      }
+      chip.textContent = s.name;
+      chip.style.color = s.color;
+    });
+  }
+
+  function duetParts(included) {
+    const map = state._duetMap;
+    if (!map || !state.duet || state.party.singers.length < 2) return null;
+    const sums = {};
+    included.forEach(x => {
+      const a = map[x.i];
+      if (a == null || a < 0) return;
+      const s = state.party.singers[a];
+      if (!s) return;
+      if (!sums[s.name]) sums[s.name] = { color: s.color, sum: 0, n: 0 };
+      sums[s.name].sum += x.sc; sums[s.name].n++;
+    });
+    const keys = Object.keys(sums);
+    if (keys.length < 2) return null;
+    return keys.map(name => ({ name, color: sums[name].color, score: Math.round(sums[name].sum / sums[name].n) }));
+  }
+
+  /* ---------- что тренировать + точечный реплей ---------- */
+  function renderWorst() {
+    const song = state.song;
+    const el = $('#worst-panel');
+    if (!el || !song) return;
+    const w = Store.get('worst:' + song.id, []);
+    if (!w.length) { el.hidden = true; return; }
+    el.hidden = false;
+    el.innerHTML = '<b style="color:var(--amber)">Что тренировать</b> <span class="hint">— слабые строки последней полной попытки. Клик — переход к строке:</span>' +
+      '<div class="btn-row" style="margin-top:8px">' +
+      w.map(x => '<button class="btn small worst-line" data-i="' + x.i + '">' + x.sc + ' · «' + esc(x.text.slice(0, 26)) + (x.text.length > 26 ? '…' : '') + '»</button>').join('') +
+      '</div>';
+    $$('.worst-line', el).forEach(b => b.addEventListener('click', () => {
+      const i = +b.dataset.i;
+      const tm = getTimings(song.id);
+      const st = tm && tm.starts && tm.starts[i];
+      if (typeof st !== 'number') return;
+      Take.abort();
+      Transport.seek(Math.max(0, st - 0.8));
+      if (!Transport.playing) Transport.play();
+    }));
+  }
+
+  /* ---------- дубли и гид-вокал ---------- */
+  async function refreshTakes() {
+    const song = state.song;
+    const el = $('#takes-panel');
+    if (!el || !song) return;
+    let takes = [];
+    try { takes = await TakesDB.list(song.id); } catch (e) { takes = []; }
+    if (!takes.length) {
+      el.innerHTML = '<span class="hint">Дублей пока нет. Включи «Запись дубля» — попытка сохранится сюда (минус + голос). Файлы живут только в этом браузере.</span>';
+      return;
+    }
+    takes.sort((a, b) => b.ts - a.ts);
+    const guideId = Store.get('guide:' + song.id, null);
+    el.innerHTML = '<b>Дубли песни</b> <span class="hint">— «Гид» назначает дубль подсказчиком: он тихо играет, пока ты поёшь.</span>' +
+      '<div class="takes-list">' + takes.map(tk =>
+        '<div class="take-row" data-id="' + tk.id + '">' +
+        '<span class="take-name">' + new Date(tk.ts).toLocaleString() + ' · ' + tk.score + ' (' + (tk.mode === 'judge' ? 'судья' : 'друг') + ')</span>' +
+        '<span class="acts">' +
+        '<button class="btn small tk-play">Слушать</button>' +
+        '<button class="btn small tk-guide' + (guideId === tk.id ? ' go' : '') + '">Гид</button>' +
+        '<a class="btn small tk-dl" download="' + esc((tk.songTitle || 'take').replace(/[\\/:*?"<>|]/g, '')) + '_' + tk.ts + '.webm">Скачать</a>' +
+        '<button class="btn small tk-del">Удалить</button>' +
+        '</span></div>').join('') + '</div>';
+    $$('.take-row', el).forEach(row => {
+      const id = row.dataset.id;
+      const tk = takes.find(x => x.id === id);
+      $('.tk-play', row).addEventListener('click', () => playTake(tk));
+      $('.tk-guide', row).addEventListener('click', () => {
+        const cur = Store.get('guide:' + song.id, null);
+        Store.set('guide:' + song.id, cur === id ? null : id);
+        stopGuide();
+        refreshTakes();
+        toast(cur === id ? 'Гид выключен' : 'Гид назначен: дубль от ' + new Date(tk.ts).toLocaleTimeString());
+      });
+      const dl = $('.tk-dl', row);
+      if (tk) dl.href = URL.createObjectURL(tk.blob);
+      $('.tk-del', row).addEventListener('click', async () => {
+        await TakesDB.del(id);
+        if (Store.get('guide:' + song.id, null) === id) { Store.set('guide:' + song.id, null); stopGuide(); }
+        refreshTakes();
+      });
+    });
+    const gh = $('#st-guide-hint');
+    if (gh) gh.textContent = guideId ? 'Гид включён — дубль будет подыгрывать при следующем запуске трека.' : '';
+  }
+
+  function playTake(tk) {
+    if (!tk) return;
+    const a = document.getElementById('guide-audio');
+    if (state.guidePlayingId === tk.id && a && !a.paused) { a.pause(); return; }
+    stopGuide();
+    a.src = URL.createObjectURL(tk.blob);
+    a.volume = 0.9;
+    a.play().catch(() => {});
+    state.guidePlayingId = tk.id;
+  }
+
+  function stopGuide() {
+    const a = document.getElementById('guide-audio');
+    if (a) { try { a.pause(); } catch (e) {} a.removeAttribute('src'); }
+    state.guidePlayingId = null;
+  }
+
+  function syncGuide(t, playing) {
+    const song = state.song;
+    if (!song) return;
+    const a = document.getElementById('guide-audio');
+    if (!a) return;
+    const gid = Store.get('guide:' + song.id, null);
+    if (!gid || !playing) {
+      if (!a.paused) a.pause();
+      return;
+    }
+    if (state.guidePlayingId !== gid) {
+      TakesDB.get(gid).then(tk => {
+        if (!tk) return;
+        a.src = URL.createObjectURL(tk.blob);
+        a.volume = 0.22;
+        a.play().catch(() => {});
+        state.guidePlayingId = gid;
+      });
+      return;
+    }
+    if (!a.paused && isFinite(a.duration) && a.duration > 0 && Math.abs(a.currentTime - t) > 0.35) {
+      try { a.currentTime = clamp(t, 0, Math.max(0, a.duration - 0.05)); } catch (e) {}
+    }
+  }
+
+  /* ---------- тональность файла (Krumhansl-Schmuckler) ---------- */
+  function keyLabel(song) {
+    const k = song ? Store.get('key:' + song.id, null) : null;
+    return k && k.fileName === (Transport.fileName || '') ? k.name : '?';
+  }
+
+  async function autoKey(file) {
+    if (!file || file.size > 60 * 1024 * 1024) return;
+    const song = state.song;
+    const btn = $('#st-key');
+    if (!btn || !song) return;
+    const cached = Store.get('key:' + song.id, null);
+    if (cached && cached.fileName === file.name) {
+      btn.textContent = 'Тональность файла: ' + cached.name;
+      return;
+    }
+    btn.textContent = 'Тональность файла: анализ…';
+    try {
+      const k = await detectKey(file, p => { btn.textContent = 'Тональность файла: анализ ' + Math.round(p * 100) + '%'; });
+      if (!k) { btn.textContent = 'Тональность файла: не вышло'; return; }
+      Store.set('key:' + song.id, { fileName: file.name, name: k.name, tonicMidi: k.tonicMidi });
+      btn.textContent = 'Тональность файла: ' + k.name;
+      toast('Тональность: ' + k.name + '. Второй клик по чипу — старт от голоса.');
+    } catch (e) {
+      btn.textContent = 'Тональность файла: не вышло';
+    }
+  }
+
+  function suggestKeyStart() {
+    const song = state.song;
+    const k = song && Store.get('key:' + song.id, null);
+    const v = Store.get('voice', null);
+    if (!k || !v) { toast('Нужны: тональность файла и тест голоса (раздел «Голос»)', true); return; }
+    const tonic = k.tonicMidi + 12 * Math.round((v.free - k.tonicMidi) / 12);
+    const off = clamp(Math.round(v.free - tonic), -12, 12);
+    setCorridor(song.id, { offset: off });
+    applyCorridor();
+    toast('Старт по голосу: ' + (off === 0 ? 'оригинал' : (off > 0 ? '+' : '') + off + ' пт') + '. Коридор сам поведёт к оригиналу.');
+  }
+
+  /* ---------- свои песни ---------- */
+  function guessType(label) {
+    const l = label.toLowerCase();
+    if (/припев|chorus|hook/.test(l)) return 'chorus';
+    if (/бридж|bridge/.test(l)) return 'bridge';
+    if (/аутро|outro|концовк/.test(l)) return 'outro';
+    if (/финал|final/.test(l)) return 'final';
+    return 'verse';
+  }
+
+  function parseLyrics(text) {
+    const sections = [];
+    let cur = null, lines = 0;
+    text.split(/\r?\n/).map(s => s.trim()).filter(s => s.length).forEach(raw => {
+      if (raw.endsWith(':') && raw.length <= 24) {
+        cur = { label: raw.replace(/:$/, '').trim(), type: guessType(raw), lines: [] };
+        sections.push(cur);
+        return;
+      }
+      if (!cur) { cur = { label: 'Куплет 1', type: 'verse', lines: [] }; sections.push(cur); }
+      cur.lines.push(raw);
+      lines++;
+    });
+    return { sections: sections.filter(s => s.lines.length), lines };
+  }
+
+  function initAddSong() {
+    const btn = $('#add-song-btn');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      const p = $('#add-song-panel');
+      p.hidden = !p.hidden;
+    });
+    $('#add-song-save').addEventListener('click', () => {
+      const title = $('#add-song-title').value.trim();
+      const text = $('#add-song-text').value;
+      const durRaw = $('#add-song-dur').value.trim();
+      const yt = $('#add-song-yt').value.trim();
+      if (!title) { toast('Дай песне имя', true); return; }
+      const parsed = parseLyrics(text);
+      if (!parsed.lines) { toast('Нет строк: вставь текст песни', true); return; }
+      let durSec = 210, dur = '3:30';
+      const mm = durRaw.match(/^(\d{1,2}):(\d{2})$/);
+      if (mm) { durSec = +mm[1] * 60 + +mm[2]; dur = durRaw; }
+      state.userSongs.push({
+        id: 'u' + Date.now(), custom: true, num: 0, title,
+        dur, durSec, youtube: yt || '', sections: parsed.sections
+      });
+      Store.set('userSongs', state.userSongs);
+      ['#add-song-title', '#add-song-text', '#add-song-dur', '#add-song-yt'].forEach(s => { $(s).value = ''; });
+      $('#add-song-panel').hidden = true;
+      toast('Песня добавлена: ' + title + ' · ' + parsed.lines + ' строк. Теперь Синхро.');
+      renderLibrary();
+    });
+  }
+
+  function deleteUserSong(id) {
+    state.userSongs = state.userSongs.filter(s => s.id !== id);
+    Store.set('userSongs', state.userSongs);
+    ['timings', 'best:friendly', 'best:judge', 'ref', 'corridor', 'worst', 'key', 'guide']
+      .forEach(k => Store.del(k + ':' + id));
+    if (state.song && state.song.id === id) { state.song = null; renderStage(); }
+    renderLibrary();
+    toast('Песня удалена');
+  }
+
+  /* ---------- хайлайты вечера ---------- */
+  function renderHighlights() {
+    const el = $('#party-highlights');
+    if (!el) return;
+    const hs = Store.get('session', { date: '', items: [] });
+    if (!hs.items.length) {
+      el.innerHTML = '<p class="hint">Хайлайтов пока нет. Лучшие строки вечера (70+) появятся здесь.</p>';
+      return;
+    }
+    el.innerHTML = '<b>Хайлайты вечера</b>' +
+      '<table class="lb" style="margin-top:8px">' +
+      hs.items.slice(0, 8).map(h =>
+        '<tr><td class="score">' + h.score + '</td><td>' +
+        (h.singer ? '<span style="color:var(--cyan)">' + esc(h.singer) + '</span> · ' : '') + esc(h.song) +
+        '</td><td class="hint">«' + esc(h.text.slice(0, 34)) + (h.text.length > 34 ? '…' : '') + '»</td></tr>'
+      ).join('') + '</table>' +
+      '<div class="btn-row" style="margin-top:10px"><button id="hl-clear" class="btn small">Очистить</button></div>';
+    $('#hl-clear').addEventListener('click', () => {
+      Store.set('session', { date: '', items: [] });
+      renderHighlights();
+    });
+  }
+
+  /* ---------- разогрев (60 сек) ---------- */
+  const Warmup = {
+    running: false, timers: [],
+    stop() {
+      this.running = false;
+      this.timers.forEach(clearTimeout);
+      this.timers = [];
+      const b = $('#warmup-btn');
+      if (b) { b.textContent = 'Разогрев 60 сек'; b.disabled = false; }
+    },
+    after(ms, fn) { this.timers.push(setTimeout(() => { if (this.running) fn(); }, ms)); },
+    run() {
+      if (this.running) { this.stop(); return; }
+      this.running = true;
+      const b = $('#warmup-btn');
+      if (b) b.textContent = 'Остановить';
+      const st = $('#warmup-status');
+      const say = s => { if (st) st.textContent = s; };
+      say('0:10 — Дыши. Длинный выдох на «с-с-с»');
+      this.after(10000, () => say('10:18 — Сирена «у-у» вверх и вниз, тянись за нотой'));
+      this.after(10000, () => playGliss(48, 60, 4));
+      this.after(14000, () => playGliss(60, 48, 4));
+      this.after(18000, () => say('18:26 — Пять нот вверх на «мэ-ми-ма-мо-му»'));
+      [60, 62, 64, 65, 67].forEach((m, i) => this.after(18000 + i * 1400, () => playGliss(m, m + 2, 1.1)));
+      this.after(26000, () => say('26:34 — Пять нот вниз'));
+      [67, 65, 64, 62, 60].forEach((m, i) => this.after(26000 + i * 1400, () => playGliss(m, m - 2, 1.1)));
+      this.after(34000, () => say('34:44 — «Бр-р-р» губами в ритме, спокойно'));
+      this.after(44000, () => say('44:60 — Свободная сирена на «а», где удобно. Следи за живой нотой'));
+      this.after(44000, () => playGliss(50, 62, 6));
+      this.after(50000, () => playGliss(62, 50, 6));
+      this.after(60000, () => {
+        say('Готово. Голос заведён.');
+        Store.set('warmupLast', Date.now());
+        renderVoice();
+        this.stop();
+      });
+    }
+  };
+
+  /* ---------- MediaSession ---------- */
+  function initMediaSession() {
+    if (!('mediaSession' in navigator)) return;
+    try {
+      navigator.mediaSession.setActionHandler('play', () => { if (!Transport.playing && sourceReady()) { Take.begin(); Transport.toggle(); } });
+      navigator.mediaSession.setActionHandler('pause', () => { if (Transport.playing) Transport.toggle(); });
+      navigator.mediaSession.setActionHandler('seekbackward', () => Transport.seek(Transport.time() - 3));
+      navigator.mediaSession.setActionHandler('seekforward', () => Transport.seek(Transport.time() + 3));
+    } catch (e) {}
+  }
+
+  function updateMediaMeta() {
+    if (!('mediaSession' in navigator) || !state.song) return;
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: (state.song.num ? '№' + state.song.num + ' — ' : '') + state.song.title,
+        artist: 'RUVSON · КАРАОКЕ МЕЧТЫ 2.0',
+        album: 'ЧИСТОВИК'
+      });
+    } catch (e) {}
+  }
+
+  function updateMediaPosition() {
+    if (!('mediaSession' in navigator) || Transport.mode !== 'file') return;
+    const now = Date.now();
+    if (now - state._mediaPosTs < 900) return;
+    state._mediaPosTs = now;
+    try {
+      const d = Transport.duration();
+      if (isFinite(d) && d > 0 && Transport.playing) {
+        navigator.mediaSession.setPositionState({
+          duration: d, playbackRate: 1, position: clamp(Transport.time(), 0, d)
+        });
+      }
+    } catch (e) {}
   }
 
   /* ============================================================
@@ -729,8 +1305,9 @@
     const rows = p.results.slice().sort((a, b) => b.score - a.score);
     board.innerHTML = '<table class="lb"><tr><th>#</th><th>Певец</th><th>Песня</th><th>Режим</th><th>Счёт</th></tr>' +
       rows.map((r, i) =>
-        '<tr' + (i === 0 ? ' class="top"' : '') + '><td>' + (i + 1) + '</td><td>' + r.singer +
-        '</td><td>' + r.song + '</td><td>' + (r.mode === 'judge' ? 'судья' : 'друг') + '</td>' +
+        '<tr' + (i === 0 ? ' class="top"' : '') + '><td>' + (i + 1) + '</td><td>' + esc(r.singer) +
+        (r.parts ? '<br>' + r.parts.map(p => '<span style="color:' + p.color + ';font-size:12px">' + esc(p.name) + ' ' + p.score + '</span>').join(' · ') : '') +
+        '</td><td>' + esc(r.song) + '</td><td>' + (r.mode === 'judge' ? 'судья' : 'друг') + '</td>' +
         '<td class="score">' + r.score + '</td></tr>').join('') +
       '</table>';
   }
@@ -750,12 +1327,18 @@
   function renderVoice() {
     const v = Store.get('voice', null);
     const el = $('#voice-result');
-    if (!v) { el.innerHTML = ''; return; }
-    el.innerHTML =
-      '<div class="voice-stat"><b>' + midiToName(Math.round(v.free)) + '</b>свободный центр</div>' +
-      '<div class="voice-stat"><b>' + midiToName(Math.round(v.low)) + '</b>комфортный низ</div>' +
-      '<div class="voice-stat"><b>' + midiToName(Math.round(v.high)) + '</b>комфортный верх</div>' +
-      '<div class="voice-stat"><b>' + (v.high - v.low) + '</b>полутонов диапазона</div>';
+    if (!v) { el.innerHTML = ''; } else {
+      el.innerHTML =
+        '<div class="voice-stat"><b>' + midiToName(Math.round(v.free)) + '</b>свободный центр</div>' +
+        '<div class="voice-stat"><b>' + midiToName(Math.round(v.low)) + '</b>комфортный низ</div>' +
+        '<div class="voice-stat"><b>' + midiToName(Math.round(v.high)) + '</b>комфортный верх</div>' +
+        '<div class="voice-stat"><b>' + (v.high - v.low) + '</b>полутонов диапазона</div>';
+    }
+    const wl = $('#warmup-last');
+    if (wl) {
+      const last = Store.get('warmupLast', null);
+      wl.textContent = last ? 'Последний разогрев: ' + new Date(last).toLocaleString() : 'Разогрев ещё не проводился — а он дешевле, чем лечение сорванного голоса.';
+    }
   }
 
   async function voiceRun() {
@@ -804,7 +1387,7 @@
     if (v === 'library') renderLibrary();
     if (v === 'stage') renderStage();
     if (v === 'sync') renderSync();
-    if (v === 'party') renderParty();
+    if (v === 'party') { renderParty(); renderHighlights(); }
     if (v === 'voice') renderVoice();
   }
 
@@ -913,6 +1496,8 @@
 
   function initVoice() {
     $('#voice-start').addEventListener('click', voiceRun);
+    const wb = $('#warmup-btn');
+    if (wb) wb.addEventListener('click', () => Warmup.run());
   }
 
   /* ============================================================
@@ -923,6 +1508,8 @@
     initSync();
     initParty();
     initVoice();
+    initAddSong();
+    initMediaSession();
     renderLibrary();
     renderStage();
     renderParty();

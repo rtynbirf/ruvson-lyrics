@@ -4,8 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>КАРАОКЕ МЕЧТЫ 2.0 — RUVSON</title>
-<meta name="description" content="Домашнее караоке по текстам RUVSON: синхронизация, голос, Зелёный коридор, пати.">
-<link rel="stylesheet" href="style.css?v=2.0">
+<meta name="description" content="Домашнее караоке по текстам RUVSON: синхронизация, голос, Зелёный коридор, пати, нотные трубки, дубли и гид-вокал.">
+<meta name="theme-color" content="#07070f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css?v=3.0">
 </head>
 <body>
 <div id="neon-bg"></div>
@@ -30,7 +33,22 @@
   <!-- БИБЛИОТЕКА -->
   <section id="view-library" class="view">
     <h2 class="view-title">Библиотека · RUVSON, ЧИСТОВИК</h2>
-    <p class="view-sub">Пять эталонных текстов, сверенных на слух. Открой песню, дай ей минус (свой файл или встроенный синth-минус), синхронизируй строки — и пой. Среда не толкает тебя: она только объявляет цену каждого шага. А «Зелёный коридор» сам сужается, когда ты растёшь.</p>
+    <p class="view-sub">Пять эталонных текстов, сверенных на слух — плюс любые свои песни: вставь текст, синхронизируй, пой. Среда не толкает тебя: она только объявляет цену каждого шага. А «Зелёный коридор» сам сужается, когда ты растёшь.</p>
+    <div class="btn-row" style="margin-bottom:16px">
+      <button id="add-song-btn" class="btn primary">Добавить свою песню</button>
+    </div>
+    <div id="add-song-panel" class="panel" style="margin-bottom:16px" hidden>
+      <div class="btn-row" style="margin-bottom:10px">
+        <input type="text" id="add-song-title" placeholder="Название" maxlength="60">
+        <input type="text" id="add-song-dur" placeholder="Длительность M:SS" maxlength="6" style="max-width:160px">
+        <input type="text" id="add-song-yt" placeholder="Ссылка YouTube (необязательно)" style="max-width:280px">
+      </div>
+      <textarea id="add-song-text" rows="8" style="width:100%;background:rgba(0,0,0,.35);color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:10px;font:500 13.5px var(--font)" placeholder="Вставь текст. Секции — строкой с двоеточием: «Куплет 1:», «Припев:», «Бридж:», «Аутро:». Каждая строка песни — отдельная строка текста."></textarea>
+      <div class="btn-row" style="margin-top:10px">
+        <button id="add-song-save" class="btn go">Разобрать и добавить</button>
+        <span class="hint">Песня живёт в этом браузере. Дальше: Синхро → тапы → пой.</span>
+      </div>
+    </div>
     <div id="song-grid" class="song-grid"></div>
   </section>
 
@@ -95,6 +113,9 @@
         <div id="party-board"></div>
       </div>
     </div>
+    <div class="panel" style="margin-top:16px">
+      <div id="party-highlights"></div>
+    </div>
   </section>
 
   <!-- ГОЛОС -->
@@ -110,6 +131,11 @@
           <span class="live-note" id="voice-live">—</span>
         </div>
         <div class="voice-result" id="voice-result"></div>
+        <div class="btn-row" style="margin-top:16px">
+          <button id="warmup-btn" class="btn">Разогрев 60 сек</button>
+          <span class="hint" id="warmup-status"></span>
+        </div>
+        <p class="hint" id="warmup-last" style="margin-top:8px"></p>
       </div>
       <div class="panel">
         <h3 style="margin-bottom:10px">Как это работает</h3>
@@ -123,9 +149,15 @@
 
 <div id="toast"></div>
 <audio id="audio" preload="auto"></audio>
+<audio id="guide-audio" preload="none"></audio>
 
-<script src="songs.js?v=2.0"></script>
-<script src="engine.js?v=2.0"></script>
-<script src="app.js?v=2.0"></script>
+<script src="songs.js?v=3.0"></script>
+<script src="engine.js?v=3.0"></script>
+<script src="app.js?v=3.0"></script>
+<script>
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  navigator.serviceWorker.register('sw.js').catch(function () {});
+}
+</script>
 </body>
 </html>

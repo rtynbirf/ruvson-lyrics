@@ -172,6 +172,8 @@ registerProcessor('pitch-shifter', PitchShifter);
   let shifterReady = false;
   let mediaSrc = null;
 
+  let mixDest = null; // шина для записи дубля (минус + голос) без выхода на колонки
+
   function ensureCtx() {
     if (!ctx) {
       const AC = window.AudioContext || window.webkitAudioContext;
@@ -179,6 +181,8 @@ registerProcessor('pitch-shifter', PitchShifter);
       master = ctx.createGain();
       master.gain.value = 1;
       master.connect(ctx.destination);
+      mixDest = ctx.createMediaStreamDestination();
+      master.connect(mixDest);
     }
     if (ctx.state === 'suspended') ctx.resume();
     return ctx;
@@ -479,22 +483,31 @@ registerProcessor('pitch-shifter', PitchShifter);
     analyser: null,
     buf: null,
     on: false,
+    _src: null,
+    _recGain: null,
     async start() {
       const c = ensureCtx();
       this.stream = await navigator.mediaDevices.getUserMedia({
         audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
       });
-      const src = c.createMediaStreamSource(this.stream);
+      this._src = c.createMediaStreamSource(this.stream);
       this.analyser = c.createAnalyser();
       this.analyser.fftSize = 2048;
-      src.connect(this.analyser); // НЕ подключаем к destination — иначе заводка
+      this._src.connect(this.analyser); // НЕ подключаем к destination — иначе заводка
+      // голос уходит на записывающую шину (микс с минусом), но не на колонки
+      this._recGain = c.createGain();
+      this._recGain.gain.value = 1;
+      this._src.connect(this._recGain);
+      if (mixDest) this._recGain.connect(mixDest);
       this.buf = new Float32Array(this.analyser.fftSize);
       this.on = true;
       return true;
     },
     stop() {
       if (this.stream) this.stream.getTracks().forEach(t => t.stop());
+      try { if (this._recGain) this._recGain.disconnect(); } catch (e) {}
       this.stream = null; this.analyser = null; this.on = false;
+      this._src = null; this._recGain = null;
     },
     read() {
       if (!this.on || !this.analyser) return { freq: 0, conf: 0, rms: 0 };
@@ -515,6 +528,198 @@ registerProcessor('pitch-shifter', PitchShifter);
     g.gain.linearRampToValueAtTime(0.0001, c.currentTime + seconds);
     o.connect(g); g.connect(c.destination);
     o.start(); o.stop(c.currentTime + seconds + 0.05);
+  }
+
+  // Глиссандо для разогрева: сирена от ноты к ноте.
+  function playGliss(m1, m2, seconds) {
+    const c = ensureCtx();
+    const o = c.createOscillator(); o.type = 'sine';
+    o.frequency.setValueAtTime(midiToFreq(m1), c.currentTime);
+    o.frequency.exponentialRampToValueAtTime(Math.max(30, midiToFreq(m2)), c.currentTime + seconds);
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, c.currentTime);
+    g.gain.linearRampToValueAtTime(0.09, c.currentTime + 0.4);
+    g.gain.setValueAtTime(0.09, c.currentTime + Math.max(0.6, seconds - 0.4));
+    g.gain.linearRampToValueAtTime(0.0001, c.currentTime + seconds);
+    o.connect(g); g.connect(c.destination);
+    o.start(); o.stop(c.currentTime + seconds + 0.05);
+  }
+
+  /* ---------- запись дубля (минус + голос через mixDest) ---------- */
+  const Recorder = {
+    mr: null,
+    chunks: [],
+    supported() {
+      return !!(window.MediaRecorder && mixDest);
+    },
+    mime() {
+      const list = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'];
+      return list.find(m => window.MediaRecorder && MediaRecorder.isTypeSupported(m)) || '';
+    },
+    start() {
+      if (!this.supported()) return false;
+      const mime = this.mime();
+      try {
+        this.mr = new MediaRecorder(mixDest.stream, mime ? { mimeType: mime } : undefined);
+      } catch (e) { return false; }
+      this.chunks = [];
+      this.mr.ondataavailable = e => { if (e.data && e.data.size) this.chunks.push(e.data); };
+      this.mr.start(500);
+      return true;
+    },
+    stop() {
+      return new Promise(resolve => {
+        if (!this.mr) { resolve(null); return; }
+        const mr = this.mr;
+        mr.onstop = () => {
+          const type = mr.mimeType || 'audio/webm';
+          const blob = new Blob(this.chunks, { type });
+          this.mr = null; this.chunks = [];
+          resolve(blob.size > 2000 ? blob : null);
+        };
+        try { mr.stop(); } catch (e) { resolve(null); }
+      });
+    }
+  };
+
+  /* ---------- хранилище дублей (IndexedDB) ---------- */
+  const TakesDB = {
+    _db: null,
+    open() {
+      if (this._db) return Promise.resolve(this._db);
+      return new Promise((resolve, reject) => {
+        const rq = indexedDB.open('km2', 1);
+        rq.onupgradeneeded = () => {
+          const db = rq.result;
+          if (!db.objectStoreNames.contains('takes')) {
+            const st = db.createObjectStore('takes', { keyPath: 'id' });
+            st.createIndex('songId', 'songId');
+          }
+        };
+        rq.onsuccess = () => { this._db = rq.result; resolve(this._db); };
+        rq.onerror = () => reject(rq.error);
+      });
+    },
+    async put(rec) {
+      const db = await this.open();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction('takes', 'readwrite');
+        tx.objectStore('takes').put(rec);
+        tx.oncomplete = resolve; tx.onerror = () => reject(tx.error);
+      });
+    },
+    async list(songId) {
+      const db = await this.open();
+      return new Promise((resolve, reject) => {
+        const rq = db.transaction('takes').objectStore('takes').getAll();
+        rq.onsuccess = () => resolve(rq.result.filter(r => r.songId === songId));
+        rq.onerror = () => reject(rq.error);
+      });
+    },
+    async get(id) {
+      const db = await this.open();
+      return new Promise((resolve, reject) => {
+        const rq = db.transaction('takes').objectStore('takes').get(id);
+        rq.onsuccess = () => resolve(rq.result || null);
+        rq.onerror = () => reject(rq.error);
+      });
+    },
+    async del(id) {
+      const db = await this.open();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction('takes', 'readwrite');
+        tx.objectStore('takes').delete(id);
+        tx.oncomplete = resolve; tx.onerror = () => reject(tx.error);
+      });
+    }
+  };
+
+  /* ---------- детектор тональности (chroma + Krumhansl-Schmuckler) ---------- */
+  // Радикс-2 FFT (внутренний, для chroma; N — степень двойки).
+  function fft(re, im) {
+    const n = re.length;
+    for (let i = 1, j = 0; i < n; i++) {
+      let bit = n >> 1;
+      for (; j & bit; bit >>= 1) j ^= bit;
+      j ^= bit;
+      if (i < j) {
+        let t = re[i]; re[i] = re[j]; re[j] = t;
+        t = im[i]; im[i] = im[j]; im[j] = t;
+      }
+    }
+    for (let len = 2; len <= n; len <<= 1) {
+      const ang = -2 * Math.PI / len;
+      const wr = Math.cos(ang), wi = Math.sin(ang);
+      for (let i = 0; i < n; i += len) {
+        let cr = 1, ci = 0;
+        for (let k = 0; k < len / 2; k++) {
+          const ur = re[i + k], ui = im[i + k];
+          const vr = re[i + k + len / 2] * cr - im[i + k + len / 2] * ci;
+          const vi = re[i + k + len / 2] * ci + im[i + k + len / 2] * cr;
+          re[i + k] = ur + vr; im[i + k] = ui + vi;
+          re[i + k + len / 2] = ur - vr; im[i + k + len / 2] = ui - vi;
+          const ncr = cr * wr - ci * wi;
+          ci = cr * wi + ci * wr; cr = ncr;
+        }
+      }
+    }
+  }
+
+  // Профили Крумхансл-Кесслера: мажор и минор от тоники C.
+  const KS_MAJ = [6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88];
+  const KS_MIN = [6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17];
+
+  async function detectKey(file, onProgress) {
+    ensureCtx();
+    const ab = await file.arrayBuffer();
+    const buf = await ctx.decodeAudioData(ab);
+    const sr = buf.sampleRate;
+    const n = buf.length;
+    const mono = new Float32Array(n);
+    for (let ch = 0; ch < Math.min(buf.numberOfChannels, 2); ch++) {
+      const d = buf.getChannelData(ch);
+      for (let i = 0; i < n; i++) mono[i] += d[i] / 2;
+    }
+    const N = 8192, hop = 4096;
+    const win = new Float32Array(N);
+    for (let i = 0; i < N; i++) win[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / N);
+    const chroma = new Float64Array(12);
+    const re = new Float32Array(N), im = new Float32Array(N);
+    let frames = 0;
+    for (let off = 0; off + N < n; off += hop) {
+      for (let i = 0; i < N; i++) { re[i] = mono[off + i] * win[i]; im[i] = 0; }
+      fft(re, im);
+      for (let k = 2; k < N / 2; k++) {
+        const f = k * sr / N;
+        if (f < 55 || f > 2093) continue;
+        const mag = Math.sqrt(re[k] * re[k] + im[k] * im[k]);
+        const pc = ((Math.round(12 * Math.log2(f / 440)) % 12) + 12) % 12;
+        chroma[pc] += mag;
+      }
+      frames++;
+      if (onProgress && frames % 60 === 0) {
+        onProgress(Math.min(0.95, off / n));
+        await new Promise(r => setTimeout(r, 0)); // не замораживаем UI
+      }
+    }
+    if (!frames) return null;
+    // нормируем и ищем лучший из 24 ключей
+    let sum = 0; for (let i = 0; i < 12; i++) sum += chroma[i];
+    if (sum <= 0) return null;
+    const pc = Array.from(chroma, v => v / sum);
+    let best = null;
+    for (let tonic = 0; tonic < 12; tonic++) {
+      [['maj', KS_MAJ], ['min', KS_MIN]].forEach(([mode, prof]) => {
+        let c = 0;
+        for (let i = 0; i < 12; i++) c += pc[(tonic + i) % 12] * prof[i];
+        if (!best || c > best.c) best = { tonic, mode, c };
+      });
+    }
+    return {
+      tonic: best.tonic, mode: best.mode,
+      name: NOTE_NAMES[best.tonic] + (best.mode === 'maj' ? ' major' : ' minor'),
+      tonicMidi: 60 + best.tonic // ориентир C4-октавы, уточняется под голос снаружи
+    };
   }
 
   /* ---------- flatten строк песни ---------- */
@@ -600,7 +805,7 @@ registerProcessor('pitch-shifter', PitchShifter);
   return {
     $, $$, clamp, fmtTime, midiToName, freqToMidi, midiToFreq, octFold, median,
     Store, toast, autoCorrelate,
-    Transport, Pad, Mic, playTone,
+    Transport, Pad, Mic, playTone, playGliss, Recorder, TakesDB, detectKey,
     flattenLines, linesWithTimes, getTimings, setTimings, isSynced,
     toLRC, parseLRC,
     get ctx() { return ctx; }

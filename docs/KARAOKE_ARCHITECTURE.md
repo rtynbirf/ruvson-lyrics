@@ -115,3 +115,34 @@ LRC. Ничего не уходит в сеть: единственные сет
 Добавить песню: `ЧИСТОВИК`-текст → секции в `songs.js` (id `nNN`) →
 Синхро-тапы → (опц.) экспорт LRC. Больше ничего: UI, счёт, коридор
 подхватят песню автоматически.
+
+## 10. v3.0 — новые модули
+
+```
+engine.js:
+  mixDest (MediaStreamDestination)  master → mixDest; голос → recGain → mixDest
+  Recorder   MediaRecorder(mixDest.stream), webm/opus или mp4, чанки 500 мс
+  TakesDB    IndexedDB km2/takes: put/list(songId)/get/del
+  detectKey  mono → FFT(8192, hop 4096, Hann) → chroma(12) → KS-профили(24)
+  playGliss  глиссандо для разогрева
+
+app.js (блок «v3.0 — ЭМЕРДЖЕНТНОЕ»):
+  buildPath/ drawTubes      траектория эталона + канвас трубок
+  duetAssign/applyDuetColors/duetParts
+  renderWorst               «что тренировать» + переход к строке
+  refreshTakes/playTake/stopGuide/syncGuide
+  parseLyrics/initAddSong/deleteUserSong
+  renderHighlights          хайлайты вечера
+  Warmup                    60-секундный сценарий
+  initMediaSession/updateMediaMeta/updateMediaPosition
+  autoKey/suggestKeyStart
+```
+
+Поток записи: `master → mixDest` несёт минус (файл после шифтера или синт),
+`mic → recGain → mixDest` добавляет голос; recGain не подключён к
+destination, поэтому заводка невозможна, а колонки слышат только минус.
+Медиа-запись стартует вместе с транспортом при включённой записи и
+останавливается в `finalizeTake` (даже для частичной попытки).
+
+Обновление кэша: правь `CACHE` в sw.js (и версию в `?v=` ссылок) одним
+коммитом — иначе клиенты останутся на старом ядре.

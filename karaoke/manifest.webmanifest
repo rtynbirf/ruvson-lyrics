@@ -1,0 +1,19 @@
+{
+  "name": "КАРАОКЕ МЕЧТЫ 2.0 — RUVSON",
+  "short_name": "КМ2",
+  "description": "Домашнее караоке: нотные трубки, Зелёный коридор, дубли, гид-вокал, пати.",
+  "lang": "ru",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#07070f",
+  "theme_color": "#07070f",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
