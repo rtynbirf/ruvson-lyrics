@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: JS синтаксис карaoke-движка
+      - name: JS синтаксис караоке-движка
         run: |
           node --check karaoke/songs.js
           node --check karaoke/engine.js
@@ -21,6 +21,10 @@ jobs:
       - name: Python-пайплайн компилируется
         run: |
           python3 -m py_compile scripts/*.py
+      - name: Пропагатор дома — компиляция и пробы (факт замером)
+        run: |
+          python3 -m py_compile engine/*.py
+          python3 engine/tests.py
       - name: Тексты ЧИСТОВИК непусты и имеют шапку
         run: |
           for f in download/*_ЧИСТОВИК.txt; do
