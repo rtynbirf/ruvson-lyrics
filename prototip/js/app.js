@@ -21,17 +21,23 @@
     if (узел) узел.textContent = текст;
   }
 
-  /* хранилище с гардом: порченый JSON не валит дом */
+  /* волна №33 — конвейер 5/5: песня из адреса ?song=nNN (умолчание n01);
+     состояние (коридор, тап-метки, журнал) — у каждой песни своё */
+  var идПесни = (new URLSearchParams(location.search).get('song') || 'n01');
+  if (!window.__ПЕСНИ || !window.__ПЕСНИ[идПесни]) идПесни = 'n01';
+  window.__ПЕСНЯ = window.__ПЕСНИ[идПесни];
+
+  /* хранилище с гардом: порченый JSON не валит дом; ключи — по песне */
   var КВ = {
     взять: function (ключ, умолчание) {
       try {
-        var сырой = localStorage.getItem('kv.prototip.' + ключ);
+        var сырой = localStorage.getItem('kv.prototip.' + идПесни + '.' + ключ);
         if (сырой === null) return умолчание;
         return JSON.parse(сырой);
       } catch (е) { return умолчание; }
     },
     положить: function (ключ, значение) {
-      try { localStorage.setItem('kv.prototip.' + ключ, JSON.stringify(значение)); }
+      try { localStorage.setItem('kv.prototip.' + идПесни + '.' + ключ, JSON.stringify(значение)); }
       catch (е) { статус('Хранилище полно: ' + (е && е.message ? е.message : е)); }
     }
   };
@@ -398,7 +404,7 @@
     var идДубля = null;
     if (частейЗаписи.length) {
       var блоб = new Blob(частейЗаписи, { type: 'audio/webm' });
-      идДубля = 'n01-take-' + запись.н + '.webm';
+      идДубля = window.__ПЕСНЯ.id + '-take-' + запись.н + '.webm';
       var буферДубля = await блоб.arrayBuffer();
       var положено = await window.__ОПФС.положить(идДубля, буферДубля);
       if (!положено || положено.ок === false) идДубля = null;
@@ -532,7 +538,7 @@
     var ящик = $('дубли-тело');
     while (ящик.firstChild) ящик.removeChild(ящик.firstChild);
     var список = await window.__ОПФС.список();
-    var наши = список.filter(function (ид) { return ид.indexOf('n01-take-') === 0; });
+    var наши = список.filter(function (ид) { return ид.indexOf(window.__ПЕСНЯ.id + '-take-') === 0; });
     var лучшийН = КВ.взять('лучшийДубльН', null);
     if (!наши.length) {
       var пусто = document.createElement('div');
@@ -605,13 +611,26 @@
     var блоб = new Blob([текст], { type: 'text/plain' });
     var ссылка = document.createElement('a');
     ссылка.href = URL.createObjectURL(блоб);
-    ссылка.download = 'n01-прототип.lrc';
+    ссылка.download = window.__ПЕСНЯ.id + '-прототип.lrc';
     ссылка.click();
-    статус('Лирка экспортирована: n01-прототип.lrc');
+    статус('Лирка экспортирована: ' + window.__ПЕСНЯ.id + '-прототип.lrc');
   }
 
   /* ══════════ 11. сборка пульта ══════════ */
   function пультСобрать() {
+    var селектор = $('выбор-песни');
+    if (селектор) {
+      Object.keys(window.__ПЕСНИ).forEach(function (ид) {
+        var п = document.createElement('option');
+        п.value = ид;
+        п.textContent = '№' + window.__ПЕСНИ[ид].num + ' · ' + window.__ПЕСНИ[ид].title;
+        if (ид === window.__ПЕСНЯ.id) п.selected = true;
+        селектор.appendChild(п);
+      });
+      селектор.addEventListener('change', function (е) {
+        location.href = location.pathname + '?song=' + е.target.value;
+      });
+    }
     $('кнопка-петь').addEventListener('click', петь);
     $('кнопка-стоп').addEventListener('click', стоп);
     $('кнопка-стоп').disabled = true;
@@ -649,7 +668,10 @@
   /* ══════════ 12. старт дома ══════════ */
   async function старт() {
     try {
-      статус('Готовим сцену: качаем минус из фонда…');
+      статус('Готовим сцену: качаем минус из фонда («' + window.__ПЕСНЯ.title + '»)…');
+      var шапкаПесни = $('шапка-песня');
+      if (шапкаПесни) шапкаПесни.textContent = 'RUVSON — «' + window.__ПЕСНЯ.title +
+        '» · минус из чистого фонда СИНГУЛЯРА';
       трубкиГотов();
       строитьСцену();
       пультСобрать();

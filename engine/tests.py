@@ -337,9 +337,12 @@ class TestHouse(unittest.TestCase):
         self.assertEqual(len(self.meta), 63)
         self.assertNotIn(26, self.meta)
         self.assertNotIn(38, self.meta)
-        self.assertEqual(self.done["clean"], [1, 2, 3, 4, 5])
-        self.assertEqual(self.done["lrc"], [1, 2, 3, 4, 5])
-        self.assertEqual(self.done["songs"], [1, 2, 3, 4, 5])
+        # волна №33 «все чистовиками»: весь корпус с текстами — в караоке;
+        # вне корпуса только №26/№38 (в доме нет своих субтитров)
+        polny = [n for n in range(1, 66) if n not in (26, 38)]
+        self.assertEqual(self.done["clean"], polny)
+        self.assertEqual(self.done["lrc"], polny)
+        self.assertEqual(self.done["songs"], polny)
 
     def test_graph_builds_and_schedules(self):
         GA = house_graph.build_graph(self.meta, self.tracks, "A")

@@ -3,11 +3,11 @@
    Service Worker: cache-first + поколение кэша.
    Канон дома СИНГУЛЯР: любой такт поднимает поколение — не поднять
    = жилец ходит по старому дому и думает, что правка не работает.
-   Поколение: prototip-scena-v1  (следующий такт → v2)
+   Поколение: prototip-scena-v2 (волна №33: конвейер 5/5)
    ═══════════════════════════════════════════════════════════════════════════ */
 'use strict';
 
-var ПРОТОТИП_КЭШ = 'prototip-scena-v1';
+var ПРОТОТИП_КЭШ = 'prototip-scena-v2';
 
 var ПРЕКЭШ = [
   './',
@@ -22,7 +22,15 @@ var ПРЕКЭШ = [
   './js/stage-core.js',
   './js/app.js',
   './minus/n01.lrc',
-  './minus/ahmGGM-P0CA.mp3'
+  './minus/n02.lrc',
+  './minus/n03.lrc',
+  './minus/n04.lrc',
+  './minus/n05.lrc',
+  './minus/ahmGGM-P0CA.mp3',
+  './minus/R0SOJreGbhM.mp3',
+  './minus/cFHsQ-LP3ns.mp3',
+  './minus/kziwaat2nu4.mp3',
+  './minus/WMU46n--Z-s.mp3'
 ];
 
 self.addEventListener('install', function (событие) {

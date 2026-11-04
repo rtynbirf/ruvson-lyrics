@@ -257,3 +257,15 @@ input[type="range"] { accent-color: var(--золото); min-width: 140px; }
   .шапка h1 { font-size: 22px; }
   input[type="range"] { min-width: 100px; }
 }
+
+/* ── волна №33: выбор песни ─────────────────────────────────────────── */
+#выбор-песни {
+  font: inherit;
+  color: inherit;
+  background: rgba(212, 175, 55, 0.06);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 8px;
+  padding: 6px 10px;
+  max-width: 300px;
+}
+#выбор-песни:focus-visible { outline: 2px solid var(--золото, #d4af37); outline-offset: 2px; }

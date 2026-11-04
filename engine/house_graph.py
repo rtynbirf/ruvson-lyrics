@@ -97,7 +97,7 @@ def load_done() -> dict:
     clean = sorted(int(re.match(r"(\d+)_", os.path.basename(p)).group(1))
                    for p in glob.glob(os.path.join(ROOT, "download",
                                                    "*_ЧИСТОВИК.txt")))
-    lrc = sorted(int(m.group(1)[1:])
+    lrc = sorted(int(m.group(1))
                  for p in glob.glob(os.path.join(ROOT, "karaoke", "lrc",
                                                  "*.lrc"))
                  if (m := re.match(r"n(\d+)\.lrc", os.path.basename(p))))
@@ -240,7 +240,8 @@ def report() -> str:
     say("")
     say(f"[6] ДОСТИЖИМОСТЬ (BOOL). Чистовик достижим для {n_reach}/{n_tracks} "
         f"треков без НОВЫХ съёмов субтитров — корпус замкнут сам на себя; "
-        f"№26/№38 сверяются по имеющимся черновикам (ремикс/audset).")
+        f"№26/№38 — своих субтитров в доме нет, текст только из внешних "
+        f"источников (у №26 — субтитры ремикса KvzORszfsg8).")
 
     say("")
     say("[7] ЗЕЛЁНЫЙ КОРИДОР (CORR, автомат-полукольцо — механика дома v3.1).")
