@@ -1,2 +1,3 @@
-# сырые срезы монолита QUANTUM: никаких пере-обзоров переводов строк
+# сырые срезы монолитов QUANTUM: никаких пере-обзоров переводов строк
 download/konveyer/v4_parts/** -text
+download/konveyer/v5_parts/** -text
