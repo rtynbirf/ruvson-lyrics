@@ -57,6 +57,16 @@ jobs:
           else
             BASE="$BEFORE"
           fi
+          # Guard (свод III.2, урок кластера 11-06): BEFORE может оказаться
+          # недостижимым объектом (переписывание истории, фантомный sha после
+          # сбоев платформы). Без проверки git diff здесь либо падал, либо
+          # молча пропускал скан. Проверяем достижимость базы: недостижим —
+          # явный пропуск diff-скана с сообщением; это НЕ force-push и НЕ
+          # повод для тревоги (пункт свода III.2).
+          if [ "$BASE" != "$EMPTY_TREE" ] && ! git cat-file -e "$BASE" 2>/dev/null; then
+            echo "::warning::BEFORE=$BEFORE недостижим в этой истории — diff-скан секретов ПРОПУЩЕН (не force-push, не секрет)"
+            exit 0
+          fi
           echo "сканирую дифф $BASE..${{ github.sha }}"
           if git diff "$BASE" "${{ github.sha }}" -- . \
              ':!.github/workflows/guardian-tripwire.yml' \
