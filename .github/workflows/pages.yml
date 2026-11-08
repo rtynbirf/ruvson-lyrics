@@ -25,6 +25,26 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Гарда Pages — план, включённость, честный FACT-exit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eu
+          PRIV=$(curl -sf -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}" | python3 -c "import json,sys; print(json.load(sys.stdin)['private'])")
+          PAGES=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pages")
+          echo "факт: private=${PRIV} GET /pages=${PAGES}"
+          if [ "$PRIV" = "True" ] && [ "$PAGES" != "200" ]; then
+            echo "::error::Pages для приватной репы недоступен на плане free (API: 422 plan does not support). Путь публикации: (а) репа → публичная, (б) апгрейд плана, (в) иная витрина (релиз/артефакт). Факты: issue #7, аудит 2026-11-08."
+            exit 1
+          fi
+          if [ "$PAGES" != "200" ]; then
+            echo "::error::Pages не включён (GET /pages=${PAGES}). Включи: Settings → Pages → Source: GitHub Actions, затем перезапусти."
+            exit 1
+          fi
+          echo "гарда пройдена: Pages включён — публикуем"
       - run: node --check karaoke/app.js && node --check karaoke/engine.js
       - name: Загрузить карaoke как артефакт Pages
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
