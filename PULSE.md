@@ -46,3 +46,17 @@
 ```json
 {"pulse_version": 2, "score": 100, "hygiene": 9, "fresh_days": 0, "debt": 3, "commits": 24, "files": 255, "branch": "main"}
 ```
+
+## Волна ×4 · П51 — тексты как данные: lrc-реестр → детерминированная экспозиция (2026-11-09)
+
+| Показатель | Значение |
+|---|---|
+| lrc-реестр | `data/lyrics/registry.json` — 63 трека (нумерация 01–65; без текста: 26, 38 — файлов ЧИСТОВИК нет в репо, честно: не выдумываем) |
+| lrc-файлов | 63 (`data/lyrics/*.lrc`, sync=unsynced — тайминги не выдумываются; реальные метки: prototip/minus/n01..n05, треки 01–05) |
+| Экспозиция | `site/`: index + 63 страницы + style.css, собраны `scripts/build_exposition.py` из данных; двойная сборка байт-идентична |
+| sha256 реестра | `c355eaef7c65d4a14187692de7a10785ee90ec3c866014f62ed6a9293452158c` |
+| sha256 SHA256SUMS (все страницы) | `4ebc9030b1921691be9a4bccf6b415a8ec6ec59788f84325aa987b2fe0355b1b` |
+| sha256 index.html | `2545eb4f74fe9db65cf145826875f52be51c874e3ed00bddfbaf6683f8d526ee` |
+| Полные пломбы страниц | `site/SHA256SUMS.txt` — 64 страницы: 63 трека + index |
+| Генератор реестра | `scripts/build_lrc_registry.py` — сборка из download/*_ЧИСТОВИК.txt, --check = двойная сборка байт-идентична |
+| CI | шаг «П51»: LRC_CHECK + BUILD_CHECK (двойная сборка + 63/63 lrc → страницы) на каждый пуш |
