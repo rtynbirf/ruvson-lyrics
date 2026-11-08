@@ -1,0 +1,39 @@
+# ruvson-lyrics
+> RUVSON — тексты 65 треков: черновики, пайплайн, финальный ZIP
+
+Автоген 2026-11-08 · источник: живой GitHub API (номера и файлы не руками) · владелец rtynbirf · ветка `main`
+
+## Мембрана
+- README.md — для человека (RUVSON — тексты 65 треков)
+- AGENTS.md — есть
+- LICENSE — MIT
+- topics: archive, karaoke, lyrics, music, poetry, russian, ruvson, song-texts
+
+## Карта корня
+- .gitattributes
+- .github/
+- .gitignore
+- AGENTS.md
+- CODEOWNERS
+- CONTRIBUTING.md
+- LICENSE
+- PULSE.md
+- README.md
+- SECURITY.md
+- docs/
+- download/
+- engine/
+- karaoke/
+- lyrics_work/
+- … ещё 3
+
+## CI
+- workflow: ci
+- workflow: guardian-tripwire
+- workflow: pages
+- workflow: self-audit
+
+## Ссылки
+- [GitHub](https://github.com/rtynbirf/ruvson-lyrics)
+- [README](https://github.com/rtynbirf/ruvson-lyrics/blob/main/README.md)
+- [raw llms.txt](https://raw.githubusercontent.com/rtynbirf/ruvson-lyrics/main/llms.txt)
