@@ -1,0 +1,10 @@
+/* П51: стили экспозиции — данные разметят себя сами */
+:root { color-scheme: light dark; }
+body { font-family: Georgia, 'Times New Roman', serif; max-width: 42rem;
+       margin: 0 auto; padding: 1.2rem; line-height: 1.55; }
+table { border-collapse: collapse; width: 100%; }
+td, th { border-bottom: 1px solid #8886; padding: .3rem .45rem; text-align: left; }
+.meta, .sync { color: #888; font-size: .9rem; }
+section p { white-space: pre-wrap; }
+footer { margin-top: 2rem; border-top: 1px solid #8886; padding-top: .6rem;
+         color: #888; font-size: .85rem; }
