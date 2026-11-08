@@ -36,4 +36,12 @@
 из git-истории блобы >50 MB будут вычищены `git filter-repo
 --strip-blobs-bigger-than 50M` сразу после этого коммита.
 
+## Примечание про v4 (2026-11-08, агент B-2)
+
+Кроме 5 частей v5, в истории git лежали 3 части `RUVSON_QUANTUM_v4.part{1,2,3}of3`
+(~73.1 MB каждая, тоже >50 MB) — их из истории вычищает та же команда
+`git filter-repo --strip-blobs-bigger-than 50M`. Их саркофаг: `release-vault`,
+релиз `import/ruvson-lyrics`, ассет `r1a001.enc` (219 400 112 bytes = сумма
+3 частей v4). Части v5 там же — `r1a002.enc` (446 710 208 bytes).
+
 Сборка архива: см. `SHA256SUMS` и `assemble_v5.py` рядом.
