@@ -36,7 +36,7 @@ jobs:
             head -1 "$f" | grep -q "^№" || { echo "НЕТ ШАПКИ: $f"; exit 1; }
           done
           echo "ЧИСТОВИК: всё на месте"
-      - name: П51 — lrc-реестр и экспозиция: двойная сборка байт-идентична, 63/63 страниц
+      - name: "П51 — lrc-реестр и экспозиция: двойная сборка байт-идентична, 63/63 страниц"
         run: |
           python3 scripts/build_lrc_registry.py --check
           python3 scripts/build_exposition.py --check
