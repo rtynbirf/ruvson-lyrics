@@ -60,7 +60,7 @@ jobs:
           echo "сканирую дифф $BASE..${{ github.sha }}"
           if git diff "$BASE" "${{ github.sha }}" -- . \
              ':!.github/workflows/guardian-tripwire.yml' \
-             ':!download/konveyer/v*_parts' \
+             ':!download/konveyer/v*_parts/*' \
              | grep -anE 'github_pat_[A-Za-z0-9_]{20,}|gh[pousr]_[A-Za-z0-9]{30,}|AKIA[0-9A-Z]{16}|xox[baprs]-[A-Za-z0-9-]{10,}|-----BEGIN [A-Z ]*PRIVATE KEY-----'; then
             echo "::error::ПОХОЖЕ НА СЕКРЕТ В ПУШЕ — см. строки выше"
             exit 1
