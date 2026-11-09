@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="banner.png" alt="ruvson-lyrics — Тексты 65 треков: черновики → пайплайн → финал" width="100%">
+</div>
+
 # RUVSON — тексты 65 треков
 
 Эталон — записи с YouTube-канала @ruvson_music. Субтитры и сайты-транскрипты — только черновик.
