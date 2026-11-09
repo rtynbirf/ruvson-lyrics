@@ -5,6 +5,12 @@ name: Pages (ручной запуск)
 # Работает, когда репозиторий публичный ИЛИ у аккаунта есть план с Pages
 # для приватных репозиториев. Сначала включи Pages:
 # Settings → Pages → Source: GitHub Actions.
+#
+# Честный нейтрал при entitlement (волна ×9, доктрина 21 §1(г)): гард-джоба
+# plan-check всегда succeeds и выносит вердикт; при недоступности Pages
+# джоба deploy уходит в skipped (не зелёная ложь: причина печатается в лог
+# plan-check целиком). Состояние переоценивается при каждом ручном запуске —
+# когда репа станет публичной или план позволит, публикация восстановится сама.
 on:
   workflow_dispatch:
 
@@ -18,14 +24,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  plan-check:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      runnable: ${{ steps.gate.outputs.runnable }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Гарда Pages — план, включённость, честный FACT-exit
+      - name: Гарда Pages — план, включённость, вердикт
+        id: gate
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -37,14 +42,27 @@ jobs:
             "https://api.github.com/repos/${GITHUB_REPOSITORY}/pages")
           echo "факт: private=${PRIV} GET /pages=${PAGES}"
           if [ "$PRIV" = "True" ] && [ "$PAGES" != "200" ]; then
-            echo "::error::Pages для приватной репы недоступен на плане free (API: 422 plan does not support). Путь публикации: (а) репа → публичная, (б) апгрейд плана, (в) иная витрина (релиз/артефакт). Факты: issue #7, аудит 2026-11-08."
-            exit 1
+            echo "::notice::Pages для приватной репы недоступен на плане free (API: 422 plan does not support). Джоба deploy пропущена честно. Путь публикации: (а) репа → публичная, (б) апгрейд плана, (в) иная витрина (релиз/артефакт). Факты: issue #7, аудит 2026-11-08."
+            echo "runnable=false" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
           if [ "$PAGES" != "200" ]; then
-            echo "::error::Pages не включён (GET /pages=${PAGES}). Включи: Settings → Pages → Source: GitHub Actions, затем перезапусти."
-            exit 1
+            echo "::notice::Pages не включён (GET /pages=${PAGES}). Джоба deploy пропущена честно. Включи: Settings → Pages → Source: GitHub Actions, затем перезапусти."
+            echo "runnable=false" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
           echo "гарда пройдена: Pages включён — публикуем"
+          echo "runnable=true" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    needs: plan-check
+    if: needs.plan-check.outputs.runnable == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: node --check karaoke/app.js && node --check karaoke/engine.js
       - name: Загрузить карaoke как артефакт Pages
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
