@@ -337,9 +337,9 @@ class TestHouse(unittest.TestCase):
         self.assertEqual(len(self.meta), 63)
         self.assertNotIn(26, self.meta)
         self.assertNotIn(38, self.meta)
-        # волна №33 «все чистовиками»: весь корпус с текстами — в караоке;
-        # вне корпуса только №26/№38 (в доме нет своих субтитров)
-        polny = [n for n in range(1, 66) if n not in (26, 38)]
+        # чистовики 65/65: корпус полный, №26 и №38 живут файлами
+        # download/*_ЧИСТОВИК.txt (чистовики в идеальный порядок)
+        polny = list(range(1, 66))
         self.assertEqual(self.done["clean"], polny)
         self.assertEqual(self.done["lrc"], polny)
         self.assertEqual(self.done["songs"], polny)
