@@ -2,14 +2,11 @@
   "schema": "lrc-registry/1",
   "artist": "RUVSON",
   "counts": {
-    "tracks": 63,
+    "tracks": 65,
     "numbering_max": 65
   },
   "gaps": {
-    "missing_nums": [
-      26,
-      38
-    ],
+    "missing_nums": [],
     "note": "номера без файла *_ЧИСТОВИК.txt в download/ — в реестре их нет, страницы не строятся (не выдумываем)"
   },
   "sync_policy": "тайминги не выдумываются: sync=unsynced; реальные метки — только prototip/minus/n01..n05 (треки 01–05)",
@@ -360,6 +357,19 @@
       "karaoke_timed": null
     },
     {
+      "num": 26,
+      "title": "Крик в тишине",
+      "length": "2:49",
+      "youtube": "BuMd7kj3UJA",
+      "sync": "unsynced",
+      "lrc": "data/lyrics/26_Крик_в_тишине.lrc",
+      "sha256_lrc": "3f291c7f2ad482a75ff694ff8bb8ee3c01338cd8f573f655a7be32b4007f895f",
+      "source_txt": "download/26_Крик_в_тишине_ЧИСТОВИК.txt",
+      "sha256_txt": "ea84fe6adaaf1287f950f9819d3ee09b0315a06e54e404803c49b51b44a9aec0",
+      "sections": 5,
+      "karaoke_timed": null
+    },
+    {
       "num": 27,
       "title": "Я сам себе судья",
       "length": "2:48",
@@ -500,6 +510,19 @@
       "source_txt": "download/37_Не_играй_в_любовь_Remix_ЧИСТОВИК.txt",
       "sha256_txt": "4d5beadddcc7651e77fdef427ea90e0a9b39360fb8135d5600e547601f240fe8",
       "sections": 5,
+      "karaoke_timed": null
+    },
+    {
+      "num": 38,
+      "title": "То о чём молчим",
+      "length": "2:44",
+      "youtube": "AVDC4KuNT7A",
+      "sync": "unsynced",
+      "lrc": "data/lyrics/38_То_о_чём_молчим.lrc",
+      "sha256_lrc": "e2e279bbc8bb41ff10b4a07bffeccfa3745bfc3834b336efc896b21ff44ce812",
+      "source_txt": "download/38_То_о_чём_молчим_ЧИСТОВИК.txt",
+      "sha256_txt": "4284dc8c335be9b953711c70ff844116e3f4d1766245e6c23cddba5802353067",
+      "sections": 7,
       "karaoke_timed": null
     },
     {
