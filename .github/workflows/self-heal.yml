@@ -30,6 +30,9 @@ on:
       - "Pages (ручной запуск)"
       - "guardian-tripwire"
       - "ПУЛЬС v2 — еженедельный самоаудит"
+      - "РЕВО ОБХОД"
+      - "Scorecard analysis"
+      - "Workflow security lint (zizmor)"
     types: [completed]
 permissions:
   actions: write
