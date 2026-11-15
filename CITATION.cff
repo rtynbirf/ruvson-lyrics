@@ -1,0 +1,8 @@
+cff-version: 1.2.0
+message: "Если используете этот проект, процитируйте его так."
+title: "ruvson-lyrics"
+abstract: "RUVSON — тексты 65 треков: черновики, пайплайн, финальный ZIP"
+authors:
+  - name: "Полимат-Универсум (rtynbirf)"
+repository-code: "https://github.com/rtynbirf/ruvson-lyrics"
+license: "MIT"
