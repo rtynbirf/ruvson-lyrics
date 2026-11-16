@@ -20,7 +20,7 @@ window.SONGS = [
     title: 'Начать сначала',
     dur: '2:41',
     durSec: 161,
-    youtube: 'https://youtu.be/ahmGGM-P0CA',
+    youtube: 'qr/ahmGGM-P0CA.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Когда туман закрыл твой горизонт',
@@ -70,7 +70,7 @@ window.SONGS = [
     title: 'Цени моменты',
     dur: '2:31',
     durSec: 151,
-    youtube: 'https://youtu.be/R0SOJreGbhM',
+    youtube: 'qr/R0SOJreGbhM.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Мы жжём года, как старое письмо в камине,',
@@ -133,7 +133,7 @@ window.SONGS = [
     title: 'Не тех мы ценим',
     dur: '3:02',
     durSec: 182,
-    youtube: 'https://youtu.be/cFHsQ-LP3ns',
+    youtube: 'qr/cFHsQ-LP3ns.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Мы часто путаем салюты с маяком,',
@@ -203,7 +203,7 @@ window.SONGS = [
     title: 'Ангел без крыльев',
     dur: '4:06',
     durSec: 246,
-    youtube: 'https://youtu.be/kziwaat2nu4',
+    youtube: 'qr/kziwaat2nu4.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Здесь небо пахнет гарью, а земля свинцом,',
@@ -267,7 +267,7 @@ window.SONGS = [
     title: 'Не теряй шанс',
     dur: '2:30',
     durSec: 150,
-    youtube: 'https://youtu.be/WMU46n--Z-s',
+    youtube: 'qr/WMU46n--Z-s.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Снова утро, снова мысли: ещё не пора.',
@@ -315,7 +315,7 @@ window.SONGS = [
     title: 'Не жди завтра',
     dur: '3:16',
     durSec: 196,
-    youtube: 'https://youtu.be/d2b72nYLiT8',
+    youtube: 'qr/d2b72nYLiT8.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Заварит вечер крепкий чай в стакане.',
@@ -365,7 +365,7 @@ window.SONGS = [
     title: 'Цени моменты (Remix)',
     dur: '2:54',
     durSec: 174,
-    youtube: 'https://youtu.be/EFaMUciH3Do',
+    youtube: 'qr/EFaMUciH3Do.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Мы жжём года, не замечая,',
@@ -415,7 +415,7 @@ window.SONGS = [
     title: 'Куда летят года',
     dur: '3:02',
     durSec: 182,
-    youtube: 'https://youtu.be/0er7tqdMrqU',
+    youtube: 'qr/0er7tqdMrqU.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Ты ждал весны, ты ждал звонка,',
@@ -462,7 +462,7 @@ window.SONGS = [
     title: 'Два голоса',
     dur: '2:57',
     durSec: 177,
-    youtube: 'https://youtu.be/ZXimyVwjmts',
+    youtube: 'qr/ZXimyVwjmts.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         '10 Секунд в ленте, готов приговор.',
@@ -527,7 +527,7 @@ window.SONGS = [
     title: 'Цени время',
     dur: '4:27',
     durSec: 267,
-    youtube: 'https://youtu.be/pP3Kk2_FHbE',
+    youtube: 'qr/pP3Kk2_FHbE.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Мы жизнь порой сжигаем как папиросу в ночь.',
@@ -581,7 +581,7 @@ window.SONGS = [
     title: 'Там где ты',
     dur: '3:02',
     durSec: 182,
-    youtube: 'https://youtu.be/vUb40twffCI',
+    youtube: 'qr/vUb40twffCI.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Там, где туман обнимает рассвет, там,',
@@ -638,7 +638,7 @@ window.SONGS = [
     title: 'Свет в темноте',
     dur: '3:07',
     durSec: 187,
-    youtube: 'https://youtu.be/KFnJwNv008s',
+    youtube: 'qr/KFnJwNv008s.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Когда часы застыли на стене и ночь по венам бродит в тишине когда предел настал и гаснет твой маяк ты не спеши делать последний шаг не отпускай слышишь,',
@@ -670,7 +670,7 @@ window.SONGS = [
     title: 'Где настоящее',
     dur: '4:25',
     durSec: 265,
-    youtube: 'https://youtu.be/shs0TiOwx-M',
+    youtube: 'qr/shs0TiOwx-M.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Ну что ж, это прогресс.',
@@ -756,7 +756,7 @@ window.SONGS = [
     title: 'Время как вода',
     dur: '2:28',
     durSec: 148,
-    youtube: 'https://youtu.be/YaY-ZJVXFjI',
+    youtube: 'qr/YaY-ZJVXFjI.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Я всё спешил, я гнался за мечтой.',
@@ -815,7 +815,7 @@ window.SONGS = [
     title: 'Бой с собой',
     dur: '2:32',
     durSec: 152,
-    youtube: 'https://youtu.be/ugjp6iaNplo',
+    youtube: 'qr/ugjp6iaNplo.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Самый трудный бой в тишине ночей,',
@@ -858,7 +858,7 @@ window.SONGS = [
     title: 'Крик в тишине',
     dur: '3:42',
     durSec: 222,
-    youtube: 'https://youtu.be/KvzORszfsg8',
+    youtube: 'qr/KvzORszfsg8.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Стены молчат, город не спит.',
@@ -926,7 +926,7 @@ window.SONGS = [
     title: 'А что если да',
     dur: '2:58',
     durSec: 178,
-    youtube: 'https://youtu.be/VfnGUIhaK2Y',
+    youtube: 'qr/VfnGUIhaK2Y.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Что если?',
@@ -993,7 +993,7 @@ window.SONGS = [
     title: 'Когда теряем',
     dur: '3:12',
     durSec: 250,
-    youtube: 'https://youtu.be/TRcxZ7jfPsA',
+    youtube: 'qr/TRcxZ7jfPsA.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Новый вечер в кофейне.',
@@ -1062,7 +1062,7 @@ window.SONGS = [
     title: 'Суть проста',
     dur: '3:21',
     durSec: 201,
-    youtube: 'https://youtu.be/8RRRYysSIHg',
+    youtube: 'qr/8RRRYysSIHg.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Мы все рисуем глянцем имена,',
@@ -1128,7 +1128,7 @@ window.SONGS = [
     title: 'Когда погаснут огни',
     dur: '3:06',
     durSec: 187,
-    youtube: 'https://youtu.be/X90mDPOhvKc',
+    youtube: 'qr/X90mDPOhvKc.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Фундамент жизни из чужих советов,',
@@ -1188,7 +1188,7 @@ window.SONGS = [
     title: 'Вера остаётся',
     dur: '2:55',
     durSec: 175,
-    youtube: 'https://youtu.be/G7L2d0Z5xfY',
+    youtube: 'qr/G7L2d0Z5xfY.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Чертежи разлетели с едой пылью.',
@@ -1242,7 +1242,7 @@ window.SONGS = [
     title: 'Всё начинается с тебя',
     dur: '3:40',
     durSec: 220,
-    youtube: 'https://youtu.be/_PCJ6fMfeRM',
+    youtube: 'qr/_PCJ6fMfeRM.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Просыпаемся, опять не так.',
@@ -1298,7 +1298,7 @@ window.SONGS = [
     title: 'Тень ушедших',
     dur: '3:51',
     durSec: 232,
-    youtube: 'https://youtu.be/lkXLeITEtGA',
+    youtube: 'qr/lkXLeITEtGA.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Свет погасших в сердце глаз.',
@@ -1373,7 +1373,7 @@ window.SONGS = [
     title: 'Я сам себе враг',
     dur: '3:22',
     durSec: 202,
-    youtube: 'https://youtu.be/z3RcsfHajP8',
+    youtube: 'qr/z3RcsfHajP8.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Стою на дороге, старше, чем этот город.',
@@ -1425,7 +1425,7 @@ window.SONGS = [
     title: 'Крик в тишине',
     dur: '2:49',
     durSec: 169,
-    youtube: 'https://youtu.be/BuMd7kj3UJA',
+    youtube: 'qr/BuMd7kj3UJA.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Стены молчат, город не спит.',
@@ -1493,7 +1493,7 @@ window.SONGS = [
     title: 'Не спеши осуждать',
     dur: '3:44',
     durSec: 224,
-    youtube: 'https://youtu.be/pervLR9m-vk',
+    youtube: 'qr/pervLR9m-vk.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Знаешь, иногда один случайный разговор остаётся с тобой на всю жизнь.',
@@ -1571,7 +1571,7 @@ window.SONGS = [
     title: 'Я сам себе судья',
     dur: '2:48',
     durSec: 168,
-    youtube: 'https://youtu.be/1BZs_wUPn1s',
+    youtube: 'qr/1BZs_wUPn1s.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Я набрал дистанцию.',
@@ -1625,7 +1625,7 @@ window.SONGS = [
     title: 'Тишина спасает',
     dur: '3:40',
     durSec: 220,
-    youtube: 'https://youtu.be/_E91VEQ-8lM',
+    youtube: 'qr/_E91VEQ-8lM.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Мы точим фразы, как ножи в пылу обид.',
@@ -1689,7 +1689,7 @@ window.SONGS = [
     title: 'Смысл жизни прост',
     dur: '2:44',
     durSec: 164,
-    youtube: 'https://youtu.be/KfKHWdiX3S4',
+    youtube: 'qr/KfKHWdiX3S4.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Листаем дни, как ветхие страницы.',
@@ -1736,7 +1736,7 @@ window.SONGS = [
     title: 'Нас учат потери',
     dur: '4:13',
     durSec: 253,
-    youtube: 'https://youtu.be/pv3GAlLG9Lk',
+    youtube: 'qr/pv3GAlLG9Lk.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Когда были моложе, спорили с судьбой,',
@@ -1794,7 +1794,7 @@ window.SONGS = [
     title: 'Не играй в любовь',
     dur: '3:44',
     durSec: 224,
-    youtube: 'https://youtu.be/8zG2LBAn1AI',
+    youtube: 'qr/8zG2LBAn1AI.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Утро за окном.',
@@ -1868,7 +1868,7 @@ window.SONGS = [
     title: 'Просто люби',
     dur: '3:54',
     durSec: 234,
-    youtube: 'https://youtu.be/9ys_TVEtda8',
+    youtube: 'qr/9ys_TVEtda8.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Мы бежим за светом призрачным,',
@@ -1921,7 +1921,7 @@ window.SONGS = [
     title: 'Остаться человеком',
     dur: '3:20',
     durSec: 200,
-    youtube: 'https://youtu.be/TobJGYOPlnw',
+    youtube: 'qr/TobJGYOPlnw.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Рассвет в городе бьёт по глазам,',
@@ -1988,7 +1988,7 @@ window.SONGS = [
     title: 'Ты одна дала',
     dur: '3:10',
     durSec: 190,
-    youtube: 'https://youtu.be/_KwlGQNmC1Q',
+    youtube: 'qr/_KwlGQNmC1Q.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Город засыпает, снова гаснут окна.',
@@ -2025,7 +2025,7 @@ window.SONGS = [
     title: 'Жизнь не прощает',
     dur: '3:12',
     durSec: 192,
-    youtube: 'https://youtu.be/QpeYJU83XiQ',
+    youtube: 'qr/QpeYJU83XiQ.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Судьба не маеть, она долги не дарит.',
@@ -2063,7 +2063,7 @@ window.SONGS = [
     title: 'Когда ты удобен',
     dur: '4:25',
     durSec: 265,
-    youtube: 'https://youtu.be/X_-M_cjCFVg',
+    youtube: 'qr/X_-M_cjCFVg.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Как много пройдено дорог, сколько стёрто каблуков.',
@@ -2125,7 +2125,7 @@ window.SONGS = [
     title: 'То о чём молчим',
     dur: '2:44',
     durSec: 164,
-    youtube: 'https://youtu.be/AVDC4KuNT7A',
+    youtube: 'qr/AVDC4KuNT7A.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Мы стоим в подъезде, гаснет свет,',
@@ -2186,7 +2186,7 @@ window.SONGS = [
     title: 'Не играй в любовь (Remix)',
     dur: '3:53',
     durSec: 233,
-    youtube: 'https://youtu.be/CO_BTO585O8',
+    youtube: 'qr/CO_BTO585O8.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Не играй.',
@@ -2261,7 +2261,7 @@ window.SONGS = [
     title: 'Оставайся молодым',
     dur: '4:16',
     durSec: 256,
-    youtube: 'https://youtu.be/POiQQ21I5n0',
+    youtube: 'qr/POiQQ21I5n0.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Да хранит тебя свет и ведёт.',
@@ -2320,7 +2320,7 @@ window.SONGS = [
     title: 'Пленники прошлого',
     dur: '3:11',
     durSec: 191,
-    youtube: 'https://youtu.be/yK2aPehxmK8',
+    youtube: 'qr/yK2aPehxmK8.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'В прихожей памяти опять не гаснет свет.',
@@ -2366,7 +2366,7 @@ window.SONGS = [
     title: 'Живи сейчас',
     dur: '4:26',
     durSec: 267,
-    youtube: 'https://youtu.be/fJwb931iJVg',
+    youtube: 'qr/fJwb931iJVg.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Проповедник метро продаёт билеты в рай.',
@@ -2430,7 +2430,7 @@ window.SONGS = [
     title: 'Это не секрет',
     dur: '3:01',
     durSec: 181,
-    youtube: 'https://youtu.be/4j1GG_X7zHw',
+    youtube: 'qr/4j1GG_X7zHw.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Это не секрет, но мы играем.',
@@ -2511,7 +2511,7 @@ window.SONGS = [
     title: 'В чём смысл',
     dur: '4:40',
     durSec: 280,
-    youtube: 'https://youtu.be/n5IFJ-g1Rtc',
+    youtube: 'qr/n5IFJ-g1Rtc.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Ты открыл глаза утром.',
@@ -2577,7 +2577,7 @@ window.SONGS = [
     title: 'Гордость нас убивает',
     dur: '3:11',
     durSec: 191,
-    youtube: 'https://youtu.be/GB31hcDi3lo',
+    youtube: 'qr/GB31hcDi3lo.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Между нами стены холодной грани.',
@@ -2626,7 +2626,7 @@ window.SONGS = [
     title: 'Меня не сломать',
     dur: '4:20',
     durSec: 260,
-    youtube: 'https://youtu.be/TkmSZp1dfBE',
+    youtube: 'qr/TkmSZp1dfBE.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Посмотри, как темнеет небо,',
@@ -2685,7 +2685,7 @@ window.SONGS = [
     title: 'Дорога мой учитель',
     dur: '2:40',
     durSec: 160,
-    youtube: 'https://youtu.be/OHaRQj9PLUY',
+    youtube: 'qr/OHaRQj9PLUY.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Шаги по лужам прошлого.',
@@ -2744,7 +2744,7 @@ window.SONGS = [
     title: 'Время всё расставит',
     dur: '3:10',
     durSec: 190,
-    youtube: 'https://youtu.be/gMASVVNFr_A',
+    youtube: 'qr/gMASVVNFr_A.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Я душу открывал, как двери в старый дом.',
@@ -2806,7 +2806,7 @@ window.SONGS = [
     title: 'Вне зоны доступа',
     dur: '3:27',
     durSec: 207,
-    youtube: 'https://youtu.be/eA-fyeSkavI',
+    youtube: 'qr/eA-fyeSkavI.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Внутри пустота.',
@@ -2883,7 +2883,7 @@ window.SONGS = [
     title: 'О чём мечтаешь ты',
     dur: '5:20',
     durSec: 320,
-    youtube: 'https://youtu.be/_gNbMCINv1Y',
+    youtube: 'qr/_gNbMCINv1Y.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Чтобы просто дойти до окна, увидеть, как светает.',
@@ -2969,7 +2969,7 @@ window.SONGS = [
     title: 'Действуй сейчас',
     dur: '2:33',
     durSec: 153,
-    youtube: 'https://youtu.be/LCADfnI8F-s',
+    youtube: 'qr/LCADfnI8F-s.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Снова утро, снова мысли, ещё не пора.',
@@ -3020,7 +3020,7 @@ window.SONGS = [
     title: 'Ты главный игрок',
     dur: '4:51',
     durSec: 291,
-    youtube: 'https://youtu.be/b_36rlzEIKk',
+    youtube: 'qr/b_36rlzEIKk.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Ветер кутает город в холодный серый туман.',
@@ -3106,7 +3106,7 @@ window.SONGS = [
     title: 'Люди в масках',
     dur: '2:37',
     durSec: 157,
-    youtube: 'https://youtu.be/M9o3ZIlhHrU',
+    youtube: 'qr/M9o3ZIlhHrU.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Мы часто верим лицу, но лица - это тень.',
@@ -3151,7 +3151,7 @@ window.SONGS = [
     title: 'Живи как умеешь',
     dur: '3:55',
     durSec: 235,
-    youtube: 'https://youtu.be/Y7Wy_JBkz7A',
+    youtube: 'qr/Y7Wy_JBkz7A.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Ты говоришь удобное, да?',
@@ -3226,7 +3226,7 @@ window.SONGS = [
     title: 'Одиночество среди людей',
     dur: '4:04',
     durSec: 244,
-    youtube: 'https://youtu.be/LqMrrKqK3AE',
+    youtube: 'qr/LqMrrKqK3AE.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'В метро сегодня снова не протолкнуться.',
@@ -3285,7 +3285,7 @@ window.SONGS = [
     title: 'Разгадка в небесах',
     dur: '3:28',
     durSec: 208,
-    youtube: 'https://youtu.be/6woWDYcu1QY',
+    youtube: 'qr/6woWDYcu1QY.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Какую даль измерить должен путник,',
@@ -3332,7 +3332,7 @@ window.SONGS = [
     title: 'А время капает',
     dur: '2:52',
     durSec: 172,
-    youtube: 'https://youtu.be/HupAWAt7CmQ',
+    youtube: 'qr/HupAWAt7CmQ.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Я всё спешил, я гнался за мечтой.',
@@ -3389,7 +3389,7 @@ window.SONGS = [
     title: 'Страх не слабость',
     dur: '4:17',
     durSec: 257,
-    youtube: 'https://youtu.be/WIrhIrDQvwY',
+    youtube: 'qr/WIrhIrDQvwY.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'В бетонных лабиринтах, где приучены молчать,',
@@ -3445,7 +3445,7 @@ window.SONGS = [
     title: 'Твоё плавание не вечно',
     dur: '3:58',
     durSec: 238,
-    youtube: 'https://youtu.be/V-IaCbDUKao',
+    youtube: 'qr/V-IaCbDUKao.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Жизнь это судно, что вечно в движении.',
@@ -3530,7 +3530,7 @@ window.SONGS = [
     title: 'Не угасай',
     dur: '2:25',
     durSec: 145,
-    youtube: 'https://youtu.be/MSqK5ig-alE',
+    youtube: 'qr/MSqK5ig-alE.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Стены городажимают, мерцают тысячи окунно.',
@@ -3576,7 +3576,7 @@ window.SONGS = [
     title: 'Неудача — не конец',
     dur: '3:31',
     durSec: 211,
-    youtube: 'https://youtu.be/q57MLk0Uf9c',
+    youtube: 'qr/q57MLk0Uf9c.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Жизни курорта набьёт, не жалея сил.',
@@ -3633,7 +3633,7 @@ window.SONGS = [
     title: 'Компас на дом',
     dur: '3:23',
     durSec: 203,
-    youtube: 'https://youtu.be/JRTUNak53nU',
+    youtube: 'qr/JRTUNak53nU.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Мир требует фактов.',
@@ -3678,7 +3678,7 @@ window.SONGS = [
     title: 'Остаться человеком (Remix)',
     dur: '2:57',
     durSec: 177,
-    youtube: 'https://youtu.be/PIyWwF0t4wQ',
+    youtube: 'qr/PIyWwF0t4wQ.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Рассвет как стекло.',
@@ -3717,7 +3717,7 @@ window.SONGS = [
     title: 'Код перемен',
     dur: '3:09',
     durSec: 189,
-    youtube: 'https://youtu.be/eOMrrezWEZM',
+    youtube: 'qr/eOMrrezWEZM.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Слышишь этот гул?',
@@ -3777,7 +3777,7 @@ window.SONGS = [
     title: 'Когда теряем (feat OutShadow)',
     dur: '3:51',
     durSec: 231,
-    youtube: 'https://youtu.be/rWpYxmFjm9g',
+    youtube: 'qr/rWpYxmFjm9g.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Новый вечер в кофейне,',
@@ -3845,7 +3845,7 @@ window.SONGS = [
     title: 'Не тех мы ценим (feat OutShadow)',
     dur: '3:19',
     durSec: 199,
-    youtube: 'https://youtu.be/hHeTk_CwmYc',
+    youtube: 'qr/hHeTk_CwmYc.png',
     sections: [
       { type: 'verse', label: 'Куплет 1', lines: [
         'Мы часто путаем салюты с маяком.',
