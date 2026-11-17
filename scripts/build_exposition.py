@@ -49,8 +49,13 @@ def page_track(t: dict) -> bytes:
     meta.append("текст: " + e(str(t.get("source_txt"))))
     parts.append('<p class="meta">' + " · ".join(meta) + "</p>")
     if t.get("youtube"):
-        parts.append(f'<p><a href="https://youtu.be/{e(t["youtube"])}">'
-                     f'youtube: {e(t["youtube"])}</a></p>')
+        # закон владельца 2026-11-16 (QR-волна 4eb49bf): внешних ссылок нет —
+        # оригинал канала открывается только через локальный QR site/qr/<id>.png
+        parts.append(f'<p class="qr-row">'
+                     f'<img src="qr/{e(t["youtube"])}.png" width="140" height="140" '
+                     f'alt="QR: оригинал на канале"><br>'
+                     f'<small>оригинал на канале · {e(t["youtube"])} — '
+                     f'внешняя ссылка только в QR (закон владельца 2026-11-16)</small></p>')
     parts.append(f'<p class="sync">sync: {e(t.get("sync", "unsynced"))}'
                  " (тайминги не выдумываются")
     if kar:
@@ -162,6 +167,17 @@ def build_into(reg: dict, out: Path) -> None:
         (out / name).write_bytes(b)
         hashes.append((name, sha256_bytes(b)))
     hashes.append(("index.html", sha256_bytes((out / "index.html").read_bytes())))
+    # QR-пломбы (закон QR-волны 4eb49bf: внешние ссылки убраны — оригинал
+    # канала только в QR; songs.js/app.js ссылаются на локальные qr/<id>.png).
+    # PNG — входные данные дома: копируются в сборку байт-в-байт и получают
+    # пломбы в SHA256SUMS.txt, иначе двойная сборка не сойдётся никогда.
+    qr_src = SITE / "qr"
+    if qr_src.is_dir():
+        (out / "qr").mkdir(exist_ok=True)
+        for p in sorted(qr_src.glob("*.png")):
+            b = p.read_bytes()
+            (out / "qr" / p.name).write_bytes(b)
+            hashes.append((f"qr/{p.name}", sha256_bytes(b)))
     hashes.sort()
     (out / "SHA256SUMS.txt").write_bytes(
         "".join(f"{h}  {n}\n" for n, h in hashes).encode("utf-8"))
