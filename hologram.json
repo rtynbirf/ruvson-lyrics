@@ -2,7 +2,7 @@
  "hologram": 1,
  "root": "c223bd4a2f6a56783c1fbdb1b1f671fa61c3150ecf320c82796ea5763043a696",
  "n": 73,
- "storage": 68,
+ "storage": 36,
  "r": 3,
  "self": {
   "name": "ruvson-lyrics",
@@ -304,5 +304,36 @@
    "hash": "de0df46af273e6d90efb2731a14536ac56381bd3680d442fbe68512e93167bdd"
   }
  ],
- "flesh": []
+ "flesh": [
+  {
+   "name": "lex-naturae",
+   "desc": "Lex Naturae — claim/evidence ledger. Separates observations from hypotheses, philosophical principles and institutional rules. Machine-verifiable: CSV cell extraction, excerpt verification, SHA-256 ar",
+   "lang": "Python",
+   "cluster": ""
+  },
+  {
+   "name": "markitdown",
+   "desc": "MarkItDown",
+   "lang": "Python",
+   "cluster": "VAULT"
+  },
+  {
+   "name": "nous",
+   "desc": "НОУС — эмерджентное сингулярное репо: конституция для человека и агентов, ТЗ форжа ISO, дорожная карта, контур исполнения",
+   "lang": "Python",
+   "cluster": ""
+  },
+  {
+   "name": "ruvson",
+   "desc": "КНИГА RUVSON",
+   "lang": "Python",
+   "cluster": ""
+  },
+  {
+   "name": "web-evolution-1991-2026",
+   "desc": "Эволюция Веба 1991→2026 — автономная HTML-экспозиция: 5 эпох, таймлайн, WCAG+APCA, один файл 267 КБ, ноль внешних запросов",
+   "lang": "HTML",
+   "cluster": ""
+  }
+ ]
 }
