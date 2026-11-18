@@ -1,12 +1,12 @@
 <div align="center">
-  <img src="banner.png" alt="ruvson-lyrics — Тексты 65 треков: черновики → пайплайн → финал" width="100%">
+  <img src="https://cdn.jsdelivr.net/gh/rtynbirf/ruvson-lyrics@main/banner.png" alt="ruvson-lyrics — Тексты 65 треков: черновики → пайплайн → финал" width="100%">
 </div>
 
 <!--ФОРЖ:МУЗА:НАЧАЛО-->
 <div align="center">
-  <img src="repo-muse.svg" width="100%" alt="Муза ruvson-lyrics: мастерская АРАБЕСКА СТРОК, кузня ПОЛИМАТ, раунд 12 · REVE=РЕВО" />
+  <img src="https://cdn.jsdelivr.net/gh/rtynbirf/ruvson-lyrics@main/repo-muse.svg" width="100%" alt="Муза ruvson-lyrics: мастерская АРАБЕСКА СТРОК, кузня ПОЛИМАТ, раунд 12 · REVE=РЕВО" />
   <br/>
-  <img src="forge-divider.svg" width="62%" alt="делитель мастерской АРАБЕСКА СТРОК" />
+  <img src="https://cdn.jsdelivr.net/gh/rtynbirf/ruvson-lyrics@main/forge-divider.svg" width="62%" alt="делитель мастерской АРАБЕСКА СТРОК" />
 </div>
 <!--ФОРЖ:МУЗА:КОНЕЦ-->
 
