@@ -25,7 +25,10 @@
 Граф: **68 узлов / 74 ребра**, 53 ARGUMENTED / 21 CANDIDATE, DAG без циклов, изолированных 0.
 Проверки: sha256-самоверификация MATCH, **108/108 цитат дословны**, 26/26 тестов PASS.
 
+Межклеточный такт **Ξ₁₁→Ξ₁₂ — СВЕДЕНИЕ НЕСВОДИМОГО**: пять клеток (RUVSON-генетика, OPE-1 RELATION-GENESIS v0.1.3, EMERGENT_CORE v0.3, FACTUM v1.2, SVERNI-канон 190) сведены на триаду 𝒱⊥𝒲⊥𝒯 **без унификации**; 7 пар пула стали RelationCandidate-пакетами v0.1.3 с хэш-линиджем — вердикт верификатора честно **UNKNOWN 7/7** (корпусная связь не притворяется механической новизной, И3 цел). Приклады: OPE-1 **36/36**, FACTUM **28/28** + соты цела, канон 190 гейт **зелёный** + канарейка краснеет, EMERGENT_CORE **15/15** + порог катализа 19/20.
+
 Артефакты: [`data/RUVSON_geneticheskaya_model_v0.11.json`](data/RUVSON_geneticheskaya_model_v0.11.json) · [`data/REPORT_v0.11.md`](data/REPORT_v0.11.md) · [`data/RUVSON_matematicheskaya_model_v0.10.md`](data/RUVSON_matematicheskaya_model_v0.10.md)
+Сведение: [`data/SINTEZ_SVEDENIE_v1.0.json`](data/SINTEZ_SVEDENIE_v1.0.json) (meta.sha256 `6c0f13b3…`) · [`data/REPORT_SINTEZ_v1.0.md`](data/REPORT_SINTEZ_v1.0.md) · [`data/ope1_bridge_v011/`](data/ope1_bridge_v011/) · [`docs/OPE1_RELATION_GENESIS_v0.1.3/`](docs/OPE1_RELATION_GENESIS_v0.1.3/)
 <!--ЕДИНАЯ ФОРМУЛА:КОНЕЦ-->
 
 <!--ФОРЖ:МУЗА:НАЧАЛО-->

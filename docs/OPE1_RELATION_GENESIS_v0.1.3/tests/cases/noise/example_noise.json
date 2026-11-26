@@ -1,0 +1,29 @@
+{
+  "candidate_id": "candidate:0000000000000000000000000000000000000000000000000000000000000002",
+  "relation": {
+    "structure": {
+      "arity": 2,
+      "domains": ["state", "event"],
+      "mapping": "random_correlation"
+    },
+    "semantics": {
+      "description": "possible correlation observed in noisy stream",
+      "interpretation_confidence": "UNASSESSED"
+    }
+  },
+  "transformation": {
+    "runtime": {
+      "language": "python",
+      "entrypoint": "identity"
+    }
+  },
+  "evidence": {
+    "tests": {
+      "known_cases": [],
+      "held_out_cases": [],
+      "negative_controls": ["random_seed_1", "random_seed_2"],
+      "composition_controls": []
+    },
+    "verdict": "UNVERIFIED"
+  }
+}

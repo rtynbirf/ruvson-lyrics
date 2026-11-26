@@ -1,0 +1,52 @@
+{
+ "relation": {
+  "candidate_id": "candidate:clean",
+  "structure": {
+   "arity": 2,
+   "domains": [
+    "state",
+    "event"
+   ]
+  },
+  "semantics": {
+   "description": "derived from observations only",
+   "interpretation_confidence": "UNASSESSED"
+  },
+  "novelty_claim": {
+   "relation_catalog_checked": false,
+   "equivalence_checked": false
+  }
+ },
+ "transformation": {
+  "transformation_id": "transform:clean",
+  "runtime": {
+   "language": "python",
+   "entrypoint": "sandbox_op_alpha",
+   "artifact_sha256": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+  },
+  "safety": {
+   "mutation_scope": "SANDBOX"
+  }
+ },
+ "evidence": {
+  "evidence_id": "evidence:clean",
+  "tests": {
+   "known_cases": [],
+   "held_out_cases": [],
+   "negative_controls": [],
+   "composition_controls": []
+  },
+  "verdict": "UNVERIFIED"
+ },
+ "provenance": {
+  "observation_ids": [
+   "obs:aaa1",
+   "obs:aaa2"
+  ],
+  "history_head_sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+ },
+ "integrity": {
+  "package_sha256": "sha256:0d8fa3d738eec28ba47bc3e832bbc921dd7e7bd4f3113db1c365d937dcffd4df",
+  "previous_package_sha256": "genesis"
+ }
+}

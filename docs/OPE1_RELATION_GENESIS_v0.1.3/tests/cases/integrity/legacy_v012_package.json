@@ -1,0 +1,16 @@
+{
+ "relation": {
+  "candidate_id": "candidate:legacy"
+ },
+ "transformation": {
+  "runtime": {
+   "entrypoint": "sandbox_op_alpha"
+  }
+ },
+ "evidence": {
+  "verdict": "UNVERIFIED"
+ },
+ "integrity": {
+  "package_sha256": "sha256:999bdb1bf280ea0cd65d25127ab517ab1c3342ffa3a805e000b6e6e806f5a9aa"
+ }
+}

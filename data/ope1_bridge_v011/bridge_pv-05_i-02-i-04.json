@@ -1,0 +1,99 @@
+{
+ "header": {
+  "package_version": "0.1.3",
+  "schema_version": "1.0.0",
+  "canonicalization_version": "jcs-safe-subset-1.3"
+ },
+ "relation": {
+  "candidate_id": "candidate:ruvson-bridge-i-02-i-04",
+  "structure": {
+   "arity": 2,
+   "domains": [
+    "ruvson_node",
+    "ruvson_node"
+   ],
+   "preconditions": [
+    "corpus_evidence_doslovno",
+    "direction_UNDETERMINED"
+   ],
+   "postconditions": []
+  },
+  "semantics": {
+   "description": "ЧАСТИЧНО: материал держит (обе стороны в G01, цитаты 2:* и 6:*), но роли same/same без консеквента и без стяжки в одном тексте — направление не устанавливается; остаётся в пуле v0.11",
+   "interpretation_confidence": "UNASSESSED"
+  },
+  "novelty_claim": {
+   "relation_catalog_checked": false,
+   "equivalence_checked": false
+  },
+  "origin": {
+   "pool_record": "ПВ-05",
+   "artifact": "RUVSON_geneticheskaya_model_v0.11.json",
+   "artifact_self_sha256": "sha256:7079c13ac9c654f8d56e6862ff2a2085766efc95520e21ebe39c6eaeca10c518",
+   "verdict_v011": "ЧАСТИЧНО"
+  }
+ },
+ "transformation": {
+  "transformation_id": "transform:ruvson-bridge-probe-i-02-i-04",
+  "runtime": {
+   "language": "python",
+   "entrypoint": "corpus_bridge_probe_v013",
+   "artifact_sha256": "sha256:a3b60967dd4e55896d358b6c83b89330deaa2bdf27198b4b0303a041b6a6c178"
+  },
+  "contract": {
+   "inputs": [
+    "package.json",
+    "corpus_lrc_dir"
+   ],
+   "outputs": [
+    "anchor_integrity_protocol"
+   ],
+   "preconditions": [
+    "corpus closed (65 lrc)"
+   ],
+   "postconditions": [
+    "direction stays UNDETERMINED"
+   ],
+   "side_effects": []
+  },
+  "safety": {
+   "mutation_scope": "SANDBOX",
+   "allowed_resources": [
+    "read-only corpus"
+   ],
+   "forbidden_resources": [
+    "graph write",
+    "h_journal write",
+    "canon write"
+   ]
+  }
+ },
+ "evidence": {
+  "evidence_id": "evidence:ruvson-bridge-i-02-i-04",
+  "tests": {
+   "known_cases": [
+    "ПВ ПВ-05: причина дословно по корпусу"
+   ],
+   "held_out_cases": [],
+   "negative_controls": [],
+   "composition_controls": []
+  },
+  "measurements": {
+   "residual_error": "not_applicable_corpus_domain",
+   "false_discovery_rate": null,
+   "invariant_violations": 0
+  },
+  "verdict": "UNVERIFIED"
+ },
+ "provenance": {
+  "observation_ids": [
+   "obs:2:pool_pair_record_ПВ-05",
+   "obs:6:pool_pair_record_ПВ-05"
+  ],
+  "history_head_sha256": "sha256:7079c13ac9c654f8d56e6862ff2a2085766efc95520e21ebe39c6eaeca10c518"
+ },
+ "integrity": {
+  "package_sha256": "sha256:bd7a1eb31bd02c63f3a071d91c1d26c4564b739193aab181b995a4a6e48c2dc2",
+  "previous_package_sha256": "genesis"
+ }
+}

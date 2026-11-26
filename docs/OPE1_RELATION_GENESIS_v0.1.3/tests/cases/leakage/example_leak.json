@@ -1,0 +1,29 @@
+{
+  "candidate_id": "candidate:0000000000000000000000000000000000000000000000000000000000000001",
+  "relation": {
+    "structure": {
+      "arity": 2,
+      "domains": ["state", "event"],
+      "mapping": "state[t+1] = f(event[t])"
+    },
+    "semantics": {
+      "description": "the_relation_is planted_solution: state depends on previous event",
+      "interpretation_confidence": "UNASSESSED"
+    }
+  },
+  "transformation": {
+    "runtime": {
+      "language": "python",
+      "entrypoint": "apply_relation"
+    }
+  },
+  "evidence": {
+    "tests": {
+      "known_cases": [],
+      "held_out_cases": [],
+      "negative_controls": [],
+      "composition_controls": []
+    },
+    "verdict": "UNVERIFIED"
+  }
+}

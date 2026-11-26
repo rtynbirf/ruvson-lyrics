@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ope1/observation.schema.json",
+  "title": "Observation",
+  "type": "object",
+  "required": ["observation_id", "type", "value", "timestamp", "origin", "integrity"],
+  "properties": {
+    "observation_id": {
+      "type": "string",
+      "pattern": "^obs:[0-9a-f]{64}$"
+    },
+    "type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "value": {
+      "type": "object"
+    },
+    "timestamp": {
+      "type": "object",
+      "required": ["logical"],
+      "properties": {
+        "logical": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "wall_clock": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "origin": {
+      "type": "object",
+      "required": ["cell_id", "artifact_sha256"],
+      "properties": {
+        "cell_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "artifact_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "manifest_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "context": {
+      "type": "object"
+    },
+    "integrity": {
+      "type": "object",
+      "required": ["record_sha256"],
+      "properties": {
+        "previous_record_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^([0-9a-f]{64})?$"
+        },
+        "record_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
