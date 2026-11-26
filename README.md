@@ -27,8 +27,11 @@
 
 Межклеточный такт **Ξ₁₁→Ξ₁₂ — СВЕДЕНИЕ НЕСВОДИМОГО**: пять клеток (RUVSON-генетика, OPE-1 RELATION-GENESIS v0.1.3, EMERGENT_CORE v0.3, FACTUM v1.2, SVERNI-канон 190) сведены на триаду 𝒱⊥𝒲⊥𝒯 **без унификации**; 7 пар пула стали RelationCandidate-пакетами v0.1.3 с хэш-линиджем — вердикт верификатора честно **UNKNOWN 7/7** (корпусная связь не притворяется механической новизной, И3 цел). Приклады: OPE-1 **36/36**, FACTUM **28/28** + соты цела, канон 190 гейт **зелёный** + канарейка краснеет, EMERGENT_CORE **15/15** + порог катализа 19/20.
 
+Встречный такт **Ξ₁₂→Ξ₁₃ — ВСТРЕЧНАЯ ВЕРИФИКАЦИЯ МОСТОВ**: 7 UNKNOWN-мостов прогнаны встречным корпусным прогоном — обе стороны каждой пары якорены заново дословно (**36 цитат** с адресами), вердикты честно **ЧАСТИЧНО 7/7**: направление UNDETERMINED 7/7 (роли same/same и same/part, стяжек с консеквентом 0), **3 стяжки-кандидата** зафиксированы как новый материал (НМ-01 песня 6, НМ-02 песня 41, НМ-03 песня 20) — переякорение реестра за v0.12; absence «работа сохранения себя» перепроверена (**0 вхождений**); пакеты OPE-1 и граф v0.11 **не тронуты** (7/7 package_sha256 + meta.sha256 MATCH); 10/10 тестов PASS, антиплагиат 0 пересечений.
+
 Артефакты: [`data/RUVSON_geneticheskaya_model_v0.11.json`](data/RUVSON_geneticheskaya_model_v0.11.json) · [`data/REPORT_v0.11.md`](data/REPORT_v0.11.md) · [`data/RUVSON_matematicheskaya_model_v0.10.md`](data/RUVSON_matematicheskaya_model_v0.10.md)
 Сведение: [`data/SINTEZ_SVEDENIE_v1.0.json`](data/SINTEZ_SVEDENIE_v1.0.json) (meta.sha256 `6c0f13b3…`) · [`data/REPORT_SINTEZ_v1.0.md`](data/REPORT_SINTEZ_v1.0.md) · [`data/ope1_bridge_v011/`](data/ope1_bridge_v011/) · [`docs/OPE1_RELATION_GENESIS_v0.1.3/`](docs/OPE1_RELATION_GENESIS_v0.1.3/)
+Верификация мостов: [`data/RUVSON_verifikacia_v0.11.1.json`](data/RUVSON_verifikacia_v0.11.1.json) (meta.sha256 `a0faaae9…`) · [`data/REPORT_v0.11.1.md`](data/REPORT_v0.11.1.md)
 <!--ЕДИНАЯ ФОРМУЛА:КОНЕЦ-->
 
 <!--ФОРЖ:МУЗА:НАЧАЛО-->
