@@ -123,7 +123,9 @@
     root.innerHTML =
       '<div class="stage-head">' +
       '<h2>' + (song.custom ? 'СВОЯ — ' : '№' + song.num + ' — ') + song.title + '</h2>' +
-      '<span class="yt"><img src="' + song.youtube + '" width="110" height="110" alt="QR: оригинал на канале — внешняя ссылка только QR"> <small>оригинал на канале · ' + song.dur + ' · внешняя ссылка только QR</small></span>' +
+      (song.youtube
+        ? '<span class="yt"><img src="' + song.youtube + '" width="110" height="110" alt="QR: оригинал на канале — внешняя ссылка только QR"> <small>оригинал на канале · ' + song.dur + ' · внешняя ссылка только QR</small></span>'
+        : '<span class="yt"><small>файл владельца · ' + song.dur + ' · YouTube-оригинала нет</small></span>') +
       '</div>' +
 
       '<div class="panel transport-panel">' +
