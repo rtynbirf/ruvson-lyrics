@@ -1,9 +1,35 @@
 <div align="center">
+
+<a href="https://github.com/rtynbirf/ruvson-lyrics"><img src="banner.png" width="100%" alt="ruvson-lyrics — штандарт мастерской в каноне ORNAMENTAL MYTHO-REALISM"></a>
+
+</div>
+
+<!--ФОРЖ:МУЗА:НАЧАЛО-->
+<div align="center">
+  <img src="https://cdn.jsdelivr.net/gh/rtynbirf/ruvson-lyrics@main/repo-muse.svg" width="100%" alt="Муза ruvson-lyrics: мастерская АРАБЕСКА СТРОК, кузня ПОЛИМАТ, раунд 12 · REVE=РЕВО" />
+  <br/>
+  <img src="https://cdn.jsdelivr.net/gh/rtynbirf/ruvson-lyrics@main/forge-divider.svg" width="62%" alt="делитель мастерской АРАБЕСКА СТРОК" />
+</div>
+<!--ФОРЖ:МУЗА:КОНЕЦ-->
+
+<!--ФОРЖ:ПАСПОРТ:НАЧАЛО-->
+<div align="center">
+  <img src="revo-page.svg" width="100%" alt="РЕВО-паспорт страницы ruvson-lyrics №52 в каноне ORNAMENTAL MYTHO-REALISM: орнаментальная решётка, медальон-миф, строение файлов, лексикон — по фактическому контенту" />
+</div>
+
+| ФАЙЛОВ | ПАПОК | КОММИТОВ | ОБНОВЛЕНО | РЕЛИЗОВ |
+|---:|---:|---:|---|---:|
+| 648 | 35 | 1 | 2026-11-28 | 2 |
+<!--ФОРЖ:ПАСПОРТ:КОНЕЦ-->
+
+<div align="center">
   <img src="https://cdn.jsdelivr.net/gh/rtynbirf/ruvson-lyrics@main/banner.png" alt="ruvson-lyrics — Тексты: фонд 71 — 68 чистовиков + 3 ASR-транскрипции" width="100%">
 </div>
 
 <!--ЕДИНАЯ ФОРМУЛА:НАЧАЛО-->
 # ЕДИНАЯ ФОРМУЛА ГЕНЕЗИСА RUVSON
+
+<p align="center"><img src="https://cdn.jsdelivr.net/gh/rtynbirf/ruvson-lyrics@main/.github/social-preview.png" alt="ruvson-lyrics" width="100%"></p>
 
 **ВСЁ СУЩЕЕ — ЕДИНСТВО ВОЗНИКНОВЕНИЯ, ВЗАИМОДЕЙСТВИЯ И ПРЕОБРАЗОВАНИЯ. ОНТОЛОГИЯ СТАНОВЛЕНИЯ — ЕДИНСТВО БЕЗ УНИФИКАЦИИ.**
 
@@ -40,23 +66,9 @@
 Модель v0.12.1: [`data/RUVSON_geneticheskaya_model_v0.12.1.json`](data/RUVSON_geneticheskaya_model_v0.12.1.json) (meta.sha256 `79d976fe…`) · [`data/REPORT_v0.12.1.md`](data/REPORT_v0.12.1.md)
 <!--ЕДИНАЯ ФОРМУЛА:КОНЕЦ-->
 
-<!--ФОРЖ:МУЗА:НАЧАЛО-->
-<div align="center">
-  <img src="https://cdn.jsdelivr.net/gh/rtynbirf/ruvson-lyrics@main/repo-muse.svg" width="100%" alt="Муза ruvson-lyrics: мастерская АРАБЕСКА СТРОК, кузня ПОЛИМАТ, раунд 12 · REVE=РЕВО" />
-  <br/>
-  <img src="https://cdn.jsdelivr.net/gh/rtynbirf/ruvson-lyrics@main/forge-divider.svg" width="62%" alt="делитель мастерской АРАБЕСКА СТРОК" />
-</div>
-<!--ФОРЖ:МУЗА:КОНЕЦ-->
 
-<!--ФОРЖ:ПАСПОРТ:НАЧАЛО-->
-<div align="center">
-  <img src="revo-page.svg" width="100%" alt="РЕВО-паспорт страницы ruvson-lyrics в каноне ORNAMENTAL MYTHO-REALISM: орнаментальная решётка, медальон-миф, строение файлов, лексикон — по фактическому контенту" />
-</div>
 
-| ФАЙЛОВ | ПАПОК | КОММИТОВ | ОБНОВЛЕНО | РЕЛИЗОВ |
-|---:|---:|---:|---|---:|
-| 572 | 26 | 189 | 2026-11-21 | 2 |
-<!--ФОРЖ:ПАСПОРТ:КОНЕЦ-->
+
 
 
 
